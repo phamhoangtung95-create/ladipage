@@ -821,38 +821,458 @@
     </div>
   </footer>
 
-  <!-- ================= STICKY FLOATING ZALO BUTTON (BẤM RA THẲNG ZALO) ================= -->
-  <div class="fixed bottom-6 right-5 z-50 flex items-center gap-3">
-    <!-- Tooltip mời chat -->
-    <a 
-      href="https://zalo.me/0354859568" 
-      target="_blank" 
-      rel="noopener noreferrer"
-      class="hidden sm:flex items-center bg-white text-slate-800 font-bold text-xs py-2 px-3.5 rounded-full shadow-lg border border-blue-100 hover:border-blue-300 transition-all transform hover:-translate-x-1"
-    >
-      <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-ping"></span>
-      Chat Zalo với Thu Trang
-    </a>
+    <!-- ================= FLOATING CONTACT & AI CHATBOT WIDGET ================= -->
+  <div class="fixed bottom-6 right-4 sm:right-6 z-50 flex flex-col items-end gap-3">
+    <!-- Teaser Bubble (Desktop only) -->
+    <div id="chatTeaser" class="hidden sm:flex items-center gap-2.5 bg-white text-slate-800 text-xs font-bold py-2.5 px-4 rounded-2xl shadow-xl border border-rose-100 cursor-pointer hover:border-rose-300 hover:shadow-rose-500/10 transition-all transform hover:-translate-y-0.5" onclick="toggleChatbot(true)">
+      <span class="relative flex h-2.5 w-2.5">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+      </span>
+      <span>👋 Thu Trang đang online • Chat hỏi nhanh</span>
+      <button onclick="event.stopPropagation(); document.getElementById('chatTeaser').remove();" class="ml-1 text-slate-400 hover:text-slate-600 font-normal text-sm" title="Đóng">&times;</button>
+    </div>
 
-    <!-- Nút Tròn Zalo Nhấp Nháy -->
-    <a 
-      href="https://zalo.me/0354859568" 
-      target="_blank" 
-      rel="noopener noreferrer" 
-      class="relative group w-14 h-14 rounded-full bg-[#0068FF] flex items-center justify-center text-white shadow-xl shadow-blue-500/40 hover:scale-110 active:scale-95 transition-all"
-      title="Nhắn tin Zalo trực tiếp với Thu Trang"
-    >
-      <!-- Vòng sóng tỏa nhiệt động (Pulsing ring) -->
-      <span class="absolute inset-0 rounded-full bg-blue-400 opacity-60 animate-ping pointer-events-none"></span>
-      
-      <!-- Icon Zalo SVG chuẩn -->
-      <svg class="w-8 h-8 relative z-10" viewBox="0 0 48 48" fill="none">
-        <path d="M24 4C12.954 4 4 11.954 4 21.78C4 27.24 6.89 32.062 11.455 35.207L9.86 42.602C9.654 43.541 10.652 44.283 11.466 43.778L20.573 38.125C21.696 38.303 22.84 38.4 24 38.4C35.046 38.4 44 30.446 44 20.62C44 10.794 35.046 4 24 4Z" fill="#0068FF"/>
-        <path d="M24 10C16.268 10 10 15.373 10 22C10 25.59 12.012 28.777 15.195 30.875L14.07 35.802C13.927 36.429 14.594 36.924 15.137 36.587L21.218 32.817C22.124 32.937 23.051 33 24 33C31.732 33 38 27.627 38 22C38 15.373 31.732 10 24 10Z" fill="white"/>
-        <path d="M22.5 19H17.5C17.224 19 17 19.224 17 19.5V20.5C17 20.776 17.224 21 17.5 21H20.6L17.2 24.5C17.07 24.63 17 24.81 17 25V25.5C17 25.776 17.224 26 17.5 26H22.5C22.776 26 23 25.776 23 25.5V24.5C23 24.224 22.776 24 22.5 24H19.4L22.8 20.5C22.93 20.37 23 20.19 23 20V19.5C23 19.224 22.776 19 22.5 19Z" fill="#0068FF"/>
-      </svg>
-    </a>
+    <div class="flex items-center gap-2.5">
+      <!-- Direct Zalo Floating Button -->
+      <a 
+        href="https://zalo.me/0354859568" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="w-12 h-12 rounded-full bg-[#0068FF] flex items-center justify-center text-white shadow-lg shadow-blue-500/30 hover:scale-110 active:scale-95 transition-all"
+        title="Chat Zalo trực tiếp với Thu Trang (0354.859.568)"
+      >
+        <svg class="w-6 h-6" viewBox="0 0 48 48" fill="none">
+          <path d="M24 4C12.954 4 4 11.954 4 21.78C4 27.24 6.89 32.062 11.455 35.207L9.86 42.602C9.654 43.541 10.652 44.283 11.466 43.778L20.573 38.125C21.696 38.303 22.84 38.4 24 38.4C35.046 38.4 44 30.446 44 20.62C44 10.794 35.046 4 24 4Z" fill="#0068FF"/>
+          <path d="M24 10C16.268 10 10 15.373 10 22C10 25.59 12.012 28.777 15.195 30.875L14.07 35.802C13.927 36.429 14.594 36.924 15.137 36.587L21.218 32.817C22.124 32.937 23.051 33 24 33C31.732 33 38 27.627 38 22C38 15.373 31.732 10 24 10Z" fill="white"/>
+          <path d="M22.5 19H17.5C17.224 19 17 19.224 17 19.5V20.5C17 20.776 17.224 21 17.5 21H20.6L17.2 24.5C17.07 24.63 17 24.81 17 25V25.5C17 25.776 17.224 26 17.5 26H22.5C22.776 26 23 25.776 23 25.5V24.5C23 24.224 22.776 24 22.5 24H19.4L22.8 20.5C22.93 20.37 23 20.19 23 20V19.5C23 19.224 22.776 19 22.5 19Z" fill="#0068FF"/>
+        </svg>
+      </a>
+
+      <!-- Primary Chatbot Launcher Button -->
+      <button 
+        id="chatbotLauncherBtn"
+        onclick="toggleChatbot()" 
+        class="relative group w-14 h-14 rounded-full bg-gradient-to-tr from-rose-600 via-rose-500 to-amber-500 flex items-center justify-center text-white shadow-xl shadow-rose-600/40 hover:scale-105 active:scale-95 transition-all border-2 border-white focus:outline-none"
+        title="Trò chuyện cùng Thu Trang"
+      >
+        <span class="absolute inset-0 rounded-full bg-rose-400 opacity-50 animate-ping pointer-events-none"></span>
+        <div id="chatLauncherIcon" class="relative z-10 flex items-center justify-center">
+          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+        </div>
+        <div id="chatCloseIcon" class="relative z-10 hidden">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </div>
+        <span id="chatUnreadBadge" class="absolute -top-1 -right-1 w-5 h-5 bg-amber-400 text-slate-900 font-black text-[10px] rounded-full border-2 border-white flex items-center justify-center shadow-sm">1</span>
+      </button>
+    </div>
   </div>
+
+  <!-- ================= CHATBOT POPUP WINDOW ================= -->
+  <div 
+    id="chatWindow" 
+    class="fixed bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-32px)] sm:w-[390px] h-[580px] max-h-[82vh] bg-white rounded-3xl shadow-2xl shadow-rose-950/20 border border-rose-100 flex flex-col overflow-hidden transition-all duration-300 transform scale-90 opacity-0 pointer-events-none origin-bottom-right"
+  >
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 p-3.5 text-white flex items-center justify-between shadow-sm select-none">
+      <div class="flex items-center gap-2.5">
+        <div class="relative w-10 h-10 rounded-full border-2 border-white/80 overflow-hidden bg-rose-200 flex-shrink-0">
+          <img src="thu_trang_portrait.jpg" alt="Thu Trang" class="w-full h-full object-cover object-top" />
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-white"></span>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h4 class="font-extrabold text-sm tracking-tight text-white leading-tight">Thu Trang</h4>
+            <span class="bg-white/20 text-[10px] px-1.5 py-0.5 rounded text-white font-semibold">8 năm nghề</span>
+          </div>
+          <p class="text-[11px] text-rose-100 flex items-center gap-1 mt-0.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Trực tuyến • Tư vấn 1-1 không mồ côi
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1">
+        <button onclick="restartChatbot()" class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Bắt đầu lại">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+        <button onclick="toggleChatbot(false)" class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Thu nhỏ">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Message Stream -->
+    <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3.5 bg-[#FFFDFB] text-xs sm:text-sm">
+      <!-- Messages injected dynamically -->
+    </div>
+
+    <!-- Typing Indicator -->
+    <div id="chatTyping" class="hidden px-4 py-2 bg-[#FFFDFB] flex items-center gap-2 text-slate-400 text-xs border-t border-slate-50">
+      <div class="flex gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-bounce"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-bounce" style="animation-delay: 0.15s"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-bounce" style="animation-delay: 0.3s"></span>
+      </div>
+      <span class="text-[11px] text-slate-500 italic">Thu Trang đang soạn câu trả lời...</span>
+    </div>
+
+    <!-- Suggestion Chips Bar -->
+    <div class="px-3 py-2 bg-rose-50/40 border-t border-rose-100 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap">
+      <span class="text-[10px] font-bold text-rose-500 flex-shrink-0 uppercase tracking-wider">Hỏi nhanh:</span>
+      <div id="chatQuickChips" class="flex gap-1.5">
+        <!-- Quick chips injected by JS -->
+      </div>
+    </div>
+
+    <!-- Input Box -->
+    <form id="chatInputForm" onsubmit="handleChatSubmit(event)" class="p-3 bg-white border-t border-rose-100 flex items-center gap-2">
+      <input 
+        type="text" 
+        id="chatUserText" 
+        placeholder="Hỏi Trang về viện phí, gói 45k/ngày..." 
+        autocomplete="off"
+        class="flex-1 text-xs sm:text-sm px-4 py-2.5 rounded-full border border-slate-200 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-slate-800 placeholder-slate-400 bg-slate-50/50"
+      />
+      <button 
+        type="submit" 
+        class="w-10 h-10 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-rose-600/20 active:scale-95 transition-all"
+        title="Gửi tin nhắn"
+      >
+        <svg class="w-4 h-4 translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- ================= CHATBOT JAVASCRIPT LOGIC ================= -->
+  <script>
+    // Knowledge Base matching sales_script.md exactly
+    const CHAT_KNOWLEDGE = [
+      {
+        id: "vinmec",
+        chip: "🏥 Viện phí Vinmec, Thu Cúc",
+        keywords: ["vinmec", "thu cúc", "thu cuc", "việt pháp", "viet phap", "hồng ngọc", "hong ngoc", "tâm anh", "tam anh", "sinh", "đẻ", "de", "thai sản", "thai san", "bảo lãnh", "bao lanh", "viện tư", "vien tu", "viện phí", "vien phi"],
+        response: `Dạ câu này các mẹ chuẩn bị sinh hỏi Trang nhiều nhất luôn ạ! 👶✨<br><br>Với thẻ chăm sóc sức khỏe toàn cầu bên Trang, khi mom sinh hoặc con ốm nằm tại <strong>Vinmec, Thu Cúc, Việt Pháp, Hồng Ngọc, Tâm Anh…</strong> bệnh viện đã có liên kết <strong>bảo lãnh viện phí trực tiếp tại giường</strong>:<br>• <strong>Khi nhập viện:</strong> Mom chỉ cần đưa thẻ bảo hiểm (hoặc mở app) kèm CCCD.<br>• <strong>Khi ra viện:</strong> Bệnh viện tự động trừ thẳng tiền phòng dịch vụ, chi phí sinh thường/sinh mổ trong hạn mức gói.<br><br>Thực tế đa số các mẹ Trang hỗ trợ sinh ở Thu Cúc hay Vinmec khi ra viện chỉ phải thanh toán thêm vài trăm ngàn tiền đồ dùng cá nhân ngoài danh mục thôi, còn lại hàng chục triệu viện phí thẻ đã chi trả trọn vẹn rồi mom nha ❤️`
+      },
+      {
+        id: "so_sanh_vbi",
+        chip: "💡 So với thẻ rời VBI 2-3tr?",
+        keywords: ["vbi", "phi nhân thọ", "phi nhan tho", "mua rời", "mua roi", "rời", "2-3 triệu", "2 triệu", "3 triệu", "rẻ hơn", "re hon", "so sánh", "so sanh", "pti"],
+        response: `Dạ em hiểu băn khoăn của anh/chị ạ! Thoạt nhìn 2–3 triệu/năm thì rất dễ chịu, nhưng bản chất của 2 dòng sản phẩm này hoàn toàn khác nhau nha:<br><br>• <strong>Gói VBI là bảo hiểm phi nhân thọ mua rời từng năm</strong> (giống như "thuê bảo vệ 1 năm"): Nếu năm nay mình claim thai sản nhiều hoặc bé ốm nhiều, năm sau công ty có quyền <strong>tăng phí gấp đôi hoặc từ chối tái tục</strong>. Ở viện tư còn bị áp <strong>đồng chi trả 30%</strong> (hóa đơn 40tr mình vẫn phải tự trả 12tr).<br>• <strong>Gói bên Trang là cam kết bảo vệ dài hạn gắn với hợp đồng nhân thọ:</strong> Đã ký là công ty bảo vệ liên tục, không cắt hợp đồng khi ốm đau, thanh toán 100% viện tư và có Trang trực tiếp lo hồ sơ bồi thường.<br><br>Tính ra chỉ khoảng <strong>45.000đ – 50.000đ/ngày</strong>, đúng bằng một bát phở sáng của bố mẹ thôi ạ!`
+      },
+      {
+        id: "thu_nhap_chi_phi",
+        chip: "💰 Thu nhập 15-20tr nên đóng bao nhiêu?",
+        keywords: ["thu nhập", "thu nhap", "lương", "luong", "15 triệu", "20 triệu", "15-20", "bao nhiêu tiền", "bao nhieu", "đắt", "dat", "xót ví", "chi phí", "ngân sách", "ngan sach", "tiền"],
+        response: `Thật lòng với anh/chị… càng những gia đình thu nhập tầm 15 – 20 triệu thì lại càng là những người <strong>cần bảo hiểm nhất</strong>.<br><br>Bởi vì tích cóp cả năm mới được vài chục triệu, nếu chẳng may gặp ca nằm viện 50 – 100 triệu có thể thổi bay sạch tiền tiết kiệm.<br><br>Nguyên tắc làm nghề 8 năm qua của Trang: <strong>Chỉ tư vấn gói chiếm 8% – 10% thu nhập gia đình</strong>. Với mức thu nhập của mình, Trang sẽ may đo gói tinh gọn tầm <strong>15 – 18 triệu/năm</strong> (chia ra khoảng 45.000đ/ngày). Vừa vặn như một chiếc áo ấm, mặc vào dễ chịu, an tâm sống mà không hề nặng gánh kinh tế anh/chị nha.`
+      },
+      {
+        id: "so_bi_lua",
+        chip: "🛡️ Mua bảo hiểm có bị lừa không?",
+        keywords: ["lừa", "lua", "lừa đảo", "lua dao", "bị lừa", "bi lua", "tranh chấp", "tranh chap", "an tâm", "an tam", "scam", "tin đồn", "tin don", "báo chí", "quỵt", "uy tín", "uy tin"],
+        response: `Dạ em rất đồng cảm với anh/chị, ai nghe tin tức tranh chấp trên mạng cũng chùn bước cả. Nhưng suốt 8 năm làm nghề, Trang thấy 95% vụ việc xuất phát từ 2 nguyên nhân:<br><br>1. Đại lý giấu bệnh cũ của khách trong hồ sơ để "nhanh ký hợp đồng", đến lúc nằm viện công ty kiểm tra ra lịch sử y tế thì buộc phải từ chối.<br>2. Mua qua ngân hàng bị tư vấn nhầm sang gói đầu tư rủi ro mà không hiểu rõ bản chất.<br><br>Tại sao làm việc với Trang lại an tâm? Vì trước khi ký, Trang luôn <strong>chủ động lật trang Điều Khoản Loại Trừ ra đọc to và giải thích cặn kẽ cùng bạn</strong>. Kê khai trung thực 100% từ đầu thì sau này công ty bắt buộc chi trả đúng từng đồng, không ai làm khó mình được ạ!`
+      },
+      {
+        id: "quy_trinh_claim",
+        chip: "📑 Nằm viện Trang hỗ trợ ra sao?",
+        keywords: ["hỗ trợ", "ho tro", "nằm viện", "nam vien", "bồi thường", "boi thuong", "claim", "giấy tờ", "giay to", "thủ tục", "thu tuc", "hóa đơn", "hoa don", "zalo"],
+        response: `Dạ anh/chị không bao giờ phải tự bơi đâu ạ! Ký với Trang là có một người đồng hành thực tế ngay tại Hà Nội:<br><br>• Khi cần dùng thẻ, anh/chị chỉ cần nhắn Zalo hoặc gọi Trang (<strong>0354.859.568</strong>).<br>• <strong>Tại viện tư (Vinmec, Thu Cúc, Việt Pháp...):</strong> Trang hướng dẫn bảo lãnh trực tiếp tại giường, viện phí trừ tự động khi xuất viện.<br>• <strong>Tại viện công (Nhi TW, Bạch Mai, Phụ sản...):</strong> Anh/chị chỉ cần chụp Giấy ra viện + Hóa đơn gửi Zalo cho Trang. Trang trực tiếp nộp hồ sơ claim online, giục duyệt và tiền chuyển thẳng vào tài khoản ngân hàng của anh/chị trong 24 – 48 giờ. Anh/chị không phải chạy đi nộp giấy tờ vất vả đâu ạ ❤️`
+      },
+      {
+        id: "bhyt_nha_nuoc",
+        chip: "🏥 Có BHYT rồi sao phải mua thêm?",
+        keywords: ["bhyt", "bảo hiểm y tế", "bao hiem y te", "nhà nước", "nha nuoc", "thẻ xanh", "the xanh", "viện công", "bệnh viện công"],
+        response: `Dạ BHYT nhà nước là chính sách an sinh cực kỳ tuyệt vời, nhất định gia đình mình phải duy trì ạ.<br><br>Tuy nhiên, BHYT nhà nước chỉ chi trả theo danh mục và đúng tuyến bệnh viện công. Lúc đi đẻ hay con ốm sốt muốn nằm phòng đơn dịch vụ riêng có điều hòa, muốn khám nhanh không phải xếp hàng từ 5h sáng, hoặc muốn sang Vinmec, Thu Cúc… thì BHYT nhà nước chi trả rất ít.<br><br>Tấm <strong>Thẻ Sức Khỏe Toàn Cầu</strong> này chính là mảnh ghép bù đắp: Thanh toán tiền phòng đơn dịch vụ, viện phí tư nhân và bảo lãnh tận nơi giúp bố mẹ đỡ vất vả rất nhiều ạ.`
+      },
+      {
+        id: "benh_co_san",
+        chip: "👶 Bé từng nằm viện có mua được?",
+        keywords: ["bệnh có sẵn", "benh co san", "bệnh cũ", "benh cu", "viêm phế quản", "viem phe quan", "viêm phổi", "viem phoi", "hô hấp", "ho hap", "từng nằm viện", "tung nam vien", "nằm viện rồi", "tái khám"],
+        response: `Dạ mẹ đừng quá lo lắng nha! Rất nhiều mẹ tìm đến Trang trong tình trạng con từng nằm viện Nhi TW điều trị viêm phế quản hay viêm phổi.<br><br>Trường hợp này hoàn toàn vẫn làm hồ sơ tham gia được ạ. Trang sẽ hướng dẫn mẹ nộp giấy ra viện và kết quả tái khám gần nhất:<br>• Nếu bé đã khỏi hẳn và sức khỏe ổn định nhiều tháng qua, trộm vía công ty vẫn có thể chấp thuận bảo hiểm chuẩn.<br>• Nếu nhẹ hơn, công ty có thể tạm hoãn hoặc loại trừ bệnh hô hấp trong thời gian đầu rồi cho tái thẩm định lại.<br><br>Mom cứ chụp giấy ra viện cũ gửi Zalo Trang (<strong>0354.859.568</strong>) để Trang kiểm tra sơ bộ tỷ lệ duyệt cho mom nhé!`
+      },
+      {
+        id: "dieu_khoan_loai_tru",
+        chip: "❌ Khi nào công ty từ chối đền?",
+        keywords: ["loại trừ", "loai tru", "từ chối", "tu choi", "không đền", "khong den", "không bồi thường", "khong boi thuong", "điều khoản", "trường hợp nào"],
+        response: `Em rất thích khi khách hỏi thẳng câu này ạ! Vì đây là quyền lợi sát sườn của gia đình mình. Có 4 trường hợp loại trừ chính trong hợp đồng:<br><br>1. <strong>Bệnh có sẵn từ trước ngày ký</strong> (trừ khi đã kê khai trung thực và công ty đồng ý chấp thuận bằng văn bản).<br>2. <strong>Bệnh phát sinh trong 'thời gian chờ':</strong> 30 ngày với bệnh thông thường; 90 ngày với bệnh hiểm nghèo; 270 ngày với thai sản.<br>3. <strong>Hành vi vi phạm pháp luật cố ý</strong> (như nồng độ cồn khi lái xe, chất kích thích cấm).<br>4. <strong>Mục đích làm đẹp, thẩm mỹ</strong> hoặc khám sức khỏe tổng quát định kỳ không có chỉ định bệnh.<br><br>Toàn bộ điều này Trang luôn gạch đầu dòng rõ ràng trong bảng tóm tắt 1 trang A4 để anh/chị lưu trong nhà minh bạch tuyệt đối ạ.`
+      },
+      {
+        id: "hop_dong_mo_coi",
+        chip: "👨‍👩‍👧 Hợp đồng mồ côi xem giúp?",
+        keywords: ["mồ côi", "mo coi", "manulife", "prudential", "bảo việt", "bao viet", "nghỉ việc", "nghi viec", "chuyển nghề", "chuyen nghe", "xem giúp", "xem giup", "bỏ rơi"],
+        response: `Dạ được chứ anh/chị ơi! Rất nhiều khách tìm đến Trang vì bạn tư vấn viên cũ làm 1–2 năm rồi nghỉ việc, để lại hợp đồng bơ vơ mỗi lần đi viện không biết gọi ai.<br><br>Anh/chị cứ chụp ảnh trang tóm tắt hợp đồng cũ gửi qua Zalo cho Trang (<strong>0354.859.568</strong>). Trang sẽ đọc lại toàn bộ quyền lợi giúp mình <strong>hoàn toàn miễn phí</strong>:<br>• Chỉ rõ gói đang bảo vệ những gì, thiếu quyền lợi y tế nào.<br>• Xem lịch đóng phí và tình trạng hợp đồng.<br><br>Nếu gói cũ ổn rồi Trang khuyên anh/chị cứ an tâm duy trì tiếp, Trang không bao giờ khuyên khách bỏ dở hợp đồng cũ đâu ạ. Cứ lưu số Zalo của Trang để lúc cần hỗ trợ viện phí nhé ❤️`
+      },
+      {
+        id: "kho_khan_tai_chinh",
+        chip: "💸 Năm sau khó khăn có mất trắng?",
+        keywords: ["khó khăn", "kho khan", "không đóng tiếp", "khong dong tiep", "mất trắng", "mat trang", "năm sau", "nam sau", "hủy hợp đồng", "huy hop dong", "tạm ngưng", "gia hạn"],
+        response: `Dạ đây là nỗi lo rất thực tế của các gia đình trẻ khi ký hợp đồng dài hạn. Anh/chị an tâm, công ty bảo hiểm luôn có các cơ chế linh hoạt:<br><br>1. <strong>Thời gian gia hạn 60 ngày đóng phí:</strong> Đến hạn đóng, mình có thêm 60 ngày được bảo vệ miễn phí mà chưa cần nộp tiền ngay để xoay xở.<br>2. <strong>Đóng phí linh hoạt:</strong> Có thể chia nhỏ đóng theo quý (3 tháng/lần) hoặc nửa năm/lần.<br>3. <strong>Tạm ngưng đóng / Trích từ giá trị tích lũy:</strong> Khi hợp đồng đã tích lũy, có thể trích tự động đóng phí để duy trì thẻ sức khỏe cho con không bị gián đoạn.<br><br>Và quan trọng nhất: Trang luôn may đo mức phí vừa vặn (chỉ 45k/ngày) để dù kinh tế thế nào gia đình mình vẫn duy trì nhẹ nhàng ạ.`
+      },
+      {
+        id: "muon_mua",
+        chip: "📋 Tôi muốn đăng ký / Nhận bảng tính",
+        keywords: ["mua", "đăng ký", "dang ky", "bảng tính", "bang tinh", "tư vấn", "tu van", "báo giá", "bao gia", "may đo", "may do", "chi phí", "danh sách chờ", "danh sach cho", "tham gia", "hợp đồng", "hop dong", "gặp", "gap", "chốt", "chot", "form", "liên hệ", "lien he"],
+        isPurchaseIntent: true,
+        response: `Dạ tuyệt vời quá ạ! Để thiết kế được <strong>Bản Tóm Tắt Quyền Lợi Tinh Gọn 1 Trang A4</strong> vừa khít với nhu cầu và túi tiền của gia đình mình (không thừa, không thiếu quyền lợi), anh/chị chỉ cần điền nhanh vào form khảo sát may đo 30 giây ngay bên dưới.<br><br>Trang sẽ may đo phương án chuẩn xác nhất và gửi riêng cho anh/chị xem trước, hoàn toàn không có bất kỳ sự nài nỉ hay gọi điện làm phiền nào đâu ạ 🥰`
+      }
+    ];
+
+    let chatHistory = [];
+    let isChatOpen = false;
+
+    // Toggle Chatbot Window
+    function toggleChatbot(forceState) {
+      const chatWindow = document.getElementById("chatWindow");
+      const launcherIcon = document.getElementById("chatLauncherIcon");
+      const closeIcon = document.getElementById("chatCloseIcon");
+      const unreadBadge = document.getElementById("chatUnreadBadge");
+      const teaser = document.getElementById("chatTeaser");
+
+      if (typeof forceState === "boolean") {
+        isChatOpen = forceState;
+      } else {
+        isChatOpen = !isChatOpen;
+      }
+
+      if (isChatOpen) {
+        chatWindow.classList.remove("scale-90", "opacity-0", "pointer-events-none");
+        chatWindow.classList.add("scale-100", "opacity-100", "pointer-events-auto");
+        launcherIcon.classList.add("hidden");
+        closeIcon.classList.remove("hidden");
+        if (unreadBadge) unreadBadge.classList.add("hidden");
+        if (teaser) teaser.style.display = "none";
+
+        // If first time open, send greeting
+        if (chatHistory.length === 0) {
+          initChatGreeting();
+        }
+        setTimeout(() => {
+          document.getElementById("chatUserText")?.focus();
+        }, 300);
+      } else {
+        chatWindow.classList.add("scale-90", "opacity-0", "pointer-events-none");
+        chatWindow.classList.remove("scale-100", "opacity-100", "pointer-events-auto");
+        launcherIcon.classList.remove("hidden");
+        closeIcon.classList.add("hidden");
+      }
+    }
+
+    // Initialize Greeting based on daytime / nighttime
+    function initChatGreeting() {
+      const hour = new Date().getHours();
+      let greetingText = "";
+      if (hour >= 22 || hour < 6) {
+        greetingText = `Chào bạn nha! Giờ này chắc nhà mình đã yên giấc hoặc mom đang tranh thủ lúc con ngủ để tìm hiểu thêm đúng không ạ? 🌙<br><br>Làm cha làm mẹ rồi mới hiểu… đêm muộn thế này là lúc mình hay lo xa nhất cho gia đình con cái.<br><br>Trang ở đây lắng nghe và hỗ trợ mình ngay. Bạn có thể bấm chọn nhanh các gợi ý bên dưới hoặc để lại câu hỏi ở đây nha, Trang sẽ trả lời chi tiết và tận tình nhất ạ ❤️`;
+      } else {
+        greetingText = `Dạ em chào anh/chị ạ! Em là Thu Trang đây ạ.<br><br>Rất vui vì được kết nối cùng anh/chị hôm nay. Em làm nghề bảo hiểm 8 năm tại Hà Nội (từ 2016), chuyên may đo gói vừa vặn và trực tiếp lo từng ca viện phí, không bao giờ để hợp đồng mồ côi.<br><br>Không biết là gia đình mình đang quan tâm thẻ sức khỏe cho con (bảo lãnh Vinmec, Thu Cúc) hay đang muốn thiết kế quỹ bảo vệ người trụ cột ạ? Anh/chị cứ nhắn hoặc chọn nhanh gợi ý bên dưới nhé ❤️`;
+      }
+      appendBotMessage(greetingText, false);
+      renderQuickChips();
+    }
+
+    // Append a message to UI
+    function appendBotMessage(htmlContent, isPurchaseIntent) {
+      const messagesContainer = document.getElementById("chatMessages");
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "flex items-start gap-2.5 animate-fadeIn";
+
+      let actionCardHtml = "";
+      if (isPurchaseIntent) {
+        actionCardHtml = `
+          <div class="mt-2.5 p-3.5 bg-gradient-to-br from-rose-50 to-amber-50/50 rounded-2xl border border-rose-200 text-left space-y-2">
+            <div class="flex items-center gap-1.5 text-xs font-black text-rose-700">
+              <span>📋</span>
+              <span>BẢNG KHẢO SÁT MAY ĐO (DANH SÁCH CHỜ)</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              Chỉ 30 giây để Thu Trang may đo bảng quyền lợi 1 trang A4 vừa khít nhu cầu và gửi riêng cho bạn.
+            </p>
+            <button onclick="window.chatbotGoToForm()" class="w-full py-2.5 px-4 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white font-extrabold text-xs rounded-xl shadow-md shadow-rose-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+              <span>👉 ĐIỀN FORM MAY ĐO NGAY</span>
+            </button>
+            <a href="https://zalo.me/0354859568" target="_blank" class="w-full py-2 px-3 bg-white hover:bg-blue-50 text-blue-600 font-bold text-xs rounded-xl border border-blue-200 transition-all flex items-center justify-center gap-1.5 shadow-xs">
+              <span>💬 Chat Zalo với Trang: 0354.859.568</span>
+            </a>
+          </div>
+        `;
+      }
+
+      msgDiv.innerHTML = `
+        <div class="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 border border-rose-200 mt-1 bg-rose-100">
+          <img src="thu_trang_portrait.jpg" alt="Trang" class="w-full h-full object-cover object-top" />
+        </div>
+        <div class="max-w-[85%] bg-white text-slate-800 p-3.5 rounded-2xl rounded-tl-sm border border-rose-100 shadow-xs leading-relaxed text-xs sm:text-sm">
+          ${htmlContent}
+          ${actionCardHtml}
+        </div>
+      `;
+
+      messagesContainer.appendChild(msgDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      chatHistory.push({ role: "bot", content: htmlContent, isPurchaseIntent });
+    }
+
+    function appendUserMessage(text) {
+      const messagesContainer = document.getElementById("chatMessages");
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "flex justify-end animate-fadeIn";
+      msgDiv.innerHTML = `
+        <div class="max-w-[85%] bg-gradient-to-r from-rose-600 to-rose-500 text-white p-3 rounded-2xl rounded-tr-sm shadow-xs leading-relaxed text-xs sm:text-sm">
+          ${escapeHtml(text)}
+        </div>
+      `;
+      messagesContainer.appendChild(msgDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      chatHistory.push({ role: "user", content: text });
+    }
+
+    // Render Quick Chips
+    function renderQuickChips() {
+      const container = document.getElementById("chatQuickChips");
+      if (!container) return;
+      container.innerHTML = "";
+      CHAT_KNOWLEDGE.forEach(item => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "text-[11px] px-2.5 py-1 bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-600 border border-rose-200 rounded-full font-semibold transition-all shadow-xs flex-shrink-0";
+        btn.innerHTML = item.chip;
+        btn.onclick = () => triggerQuickQuestion(item);
+        container.appendChild(btn);
+      });
+    }
+
+    function triggerQuickQuestion(item) {
+      appendUserMessage(item.chip);
+      showTypingIndicator();
+      setTimeout(() => {
+        hideTypingIndicator();
+        appendBotMessage(item.response, item.isPurchaseIntent || false);
+      }, 600);
+    }
+
+    function handleChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById("chatUserText");
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+
+      appendUserMessage(text);
+      showTypingIndicator();
+
+      setTimeout(() => {
+        hideTypingIndicator();
+        const responseData = findBestAnswer(text);
+        appendBotMessage(responseData.response, responseData.isPurchaseIntent || false);
+      }, 700);
+    }
+
+    // Matching algorithm
+    function findBestAnswer(userText) {
+      const cleanText = userText.toLowerCase().replace(/[?,.!]/g, " ");
+
+      // Check buy/interest intent first
+      const purchaseKeywords = ["mua", "đăng ký", "dang ky", "bảng tính", "bang tinh", "tư vấn", "tu van", "báo giá", "bao gia", "chi phí", "danh sách chờ", "danh sach cho", "tham gia", "hợp đồng", "hop dong", "chốt", "chot", "form", "may đo", "may do", "bao nhieu tien", "giá"];
+      const hasPurchase = purchaseKeywords.some(kw => cleanText.includes(kw));
+
+      let bestMatch = null;
+      let highestScore = 0;
+
+      for (let item of CHAT_KNOWLEDGE) {
+        let score = 0;
+        for (let kw of item.keywords) {
+          if (cleanText.includes(kw)) {
+            score += kw.length; // weight longer keyword matches higher
+          }
+        }
+        if (score > highestScore) {
+          highestScore = score;
+          bestMatch = item;
+        }
+      }
+
+      if (highestScore > 0 && bestMatch) {
+        return bestMatch;
+      }
+
+      if (hasPurchase) {
+        return CHAT_KNOWLEDGE.find(k => k.id === "muon_mua");
+      }
+
+      // Default empathetic fallback
+      return {
+        response: `Dạ Trang hiểu băn khoăn của anh/chị ạ… Mỗi gia đình và độ tuổi lại có những tiền sử sức khỏe và ngân sách khác nhau.<br><br>Để được giải đáp sát nhất với hoàn cảnh gia đình mình, anh/chị có thể điền vào form khảo sát may đo bên dưới, hoặc nhắn trực tiếp qua Zalo (<strong>0354.859.568</strong>) để Trang hỗ trợ 1-1 cho mình ngay nha ❤️`,
+        isPurchaseIntent: true
+      };
+    }
+
+    function showTypingIndicator() {
+      const typing = document.getElementById("chatTyping");
+      const messagesContainer = document.getElementById("chatMessages");
+      if (typing) {
+        typing.classList.remove("hidden");
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }
+
+    function hideTypingIndicator() {
+      const typing = document.getElementById("chatTyping");
+      if (typing) typing.classList.add("hidden");
+    }
+
+    function restartChatbot() {
+      const messagesContainer = document.getElementById("chatMessages");
+      messagesContainer.innerHTML = "";
+      chatHistory = [];
+      initChatGreeting();
+    }
+
+    // Smooth scroll to lead form and highlight it
+    window.chatbotGoToForm = function() {
+      const dangKySection = document.getElementById("dang-ky");
+      const leadForm = document.getElementById("leadForm");
+      
+      if (dangKySection) {
+        dangKySection.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (leadForm) {
+        leadForm.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      if (leadForm) {
+        const formCard = leadForm.closest(".rounded-3xl") || leadForm;
+        formCard.classList.add("ring-4", "ring-rose-400", "ring-offset-4", "transition-all", "duration-500");
+        setTimeout(() => {
+          formCard.classList.remove("ring-4", "ring-rose-400", "ring-offset-4");
+        }, 4000);
+      }
+
+      // On mobile screens, minimize chat to let user interact with form comfortably
+      if (window.innerWidth < 768) {
+        toggleChatbot(false);
+      }
+    };
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    // Auto show teaser on desktop after 3 seconds
+    setTimeout(() => {
+      const teaser = document.getElementById("chatTeaser");
+      if (teaser && !isChatOpen && window.innerWidth >= 640) {
+        teaser.classList.remove("hidden");
+      }
+    }, 3000);
+  </script>
 
 
   <!-- ================= FORM SUBMISSION TO GOOGLE SHEETS SCRIPT ================= -->
