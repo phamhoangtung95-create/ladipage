@@ -7,6 +7,10 @@
       "destination": "/thanh-toan.html"
     },
     {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
       "source": "/checklist",
       "destination": "/checklist.pdf"
     }
