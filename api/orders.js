@@ -2,6 +2,10 @@
 if (!global.__PENDING_ORDERS__) {
   global.__PENDING_ORDERS__ = [];
 }
+if (!global.__STATUS_OVERRIDES__) {
+  global.__STATUS_OVERRIDES__ = {};
+}
+
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -109,6 +113,9 @@ export default async function handler(req, res) {
       }
     }
 
+    if (targetCode) {
+      global.__STATUS_OVERRIDES__[targetCode] = newStatus;
+    }
     return res.status(200).json({ success: true, order_code: targetCode, status: newStatus });
   }
 
@@ -220,6 +227,17 @@ export default async function handler(req, res) {
       status: "success",
       created_at: "2026-09-14 00:35:00"
     });
+  }
+
+  // Áp dụng các thay đổi trạng thái thủ công (Override) từ Admin
+  if (global.__STATUS_OVERRIDES__) {
+    for (const [code, overrideStatus] of Object.entries(global.__STATUS_OVERRIDES__)) {
+      if (ordersMap.has(code)) {
+        const item = ordersMap.get(code);
+        item.status = overrideStatus;
+        ordersMap.set(code, item);
+      }
+    }
   }
 
   const result = Array.from(ordersMap.values());

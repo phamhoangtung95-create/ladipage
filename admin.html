@@ -690,6 +690,11 @@
         if (res.ok) {
           const actionText = nextStatus === 'success' ? 'ĐÃ DUYỆT THÀNH CÔNG (success)' : 'ĐÃ ĐỔI VỀ (pending)';
           showToast(`Đơn ${orderCode}: ${actionText}!`, 'success');
+          // Cập nhật ngay trong ordersList cục bộ để giao diện đổi tức thì
+          const localOrder = ordersList.find(x => String(x.id) === String(id) || String(x.order_code).toUpperCase() === String(orderCode).toUpperCase());
+          if (localOrder) {
+            localOrder.status = nextStatus;
+          }
           await loadOrders();
         } else {
           showToast(`Không thể cập nhật đơn ${orderCode}!`, 'error');
