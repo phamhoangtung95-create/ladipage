@@ -5,7 +5,7 @@ if (!global.__PENDING_ORDERS__) {
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -60,6 +60,38 @@ export default async function handler(req, res) {
     }
 
     return res.status(200).json({ success: true, order_code: newOrder.order_code, order: newOrder });
+  }
+
+    // ================= XỬ LÝ CẬP NHẬT TRẠNG THÁI (PUT) =================
+  if (req.method === 'PUT') {
+    const { id } = req.query;
+    const body = req.body || {};
+    const newStatus = body.status || 'success';
+    if (global.__PENDING_ORDERS__) {
+      const target = global.__PENDING_ORDERS__.find(o => String(o.id) === String(id));
+      if (target) {
+        target.status = newStatus;
+        if (GOOGLE_SHEET_URL && target.order_code) {
+          try {
+            await fetch(GOOGLE_SHEET_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "update_status", order_code: target.order_code, status: newStatus })
+            });
+          } catch(e) {}
+        }
+      }
+    }
+    return res.status(200).json({ success: true });
+  }
+
+  // ================= XỬ LÝ XÓA ĐƠN (DELETE) =================
+  if (req.method === 'DELETE') {
+    const { id } = req.query;
+    if (global.__PENDING_ORDERS__) {
+      global.__PENDING_ORDERS__ = global.__PENDING_ORDERS__.filter(o => String(o.id) !== String(id));
+    }
+    return res.status(200).json({ success: true });
   }
 
   // ================= 2. XỬ LÝ KHI LẤY DANH SÁCH ĐƠN HÀNG (GET) =================
