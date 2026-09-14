@@ -568,10 +568,10 @@
             </td>
             <td class="py-3 px-4 text-slate-400 text-[11px]">${o.created_at || '-'}</td>
             <td class="py-3 px-4 text-right space-x-2">
-              <button onclick="toggleOrderStatus(${o.id}, '${o.status}')" class="text-xs font-semibold ${
-                o.status === 'success' ? 'text-amber-600' : 'text-emerald-600'
-              } hover:underline">
-                ${o.status === 'success' ? 'Đổi sang pending' : 'Duyệt success'}
+              <button onclick="toggleOrderStatus('${o.id}', '${o.order_code}', '${o.status}', this)" class="px-2.5 py-1 rounded-lg text-xs font-bold transition shadow-sm ${
+                o.status === 'success' ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+              }">
+                ${o.status === 'success' ? '🔄 Đổi về pending' : '✓ Duyệt success'}
               </button>
               <button onclick="deleteOrder(${o.id})" class="text-red-500 hover:underline font-semibold">Xóa</button>
             </td>
@@ -650,14 +650,61 @@
       }
     }
 
-    async function toggleOrderStatus(id, curStatus) {
+    function showToast(message, type = 'success') {
+      let toast = document.getElementById('adminToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'adminToast';
+        document.body.appendChild(toast);
+      }
+      toast.className = `fixed bottom-6 right-6 z-50 px-5 py-3.5 rounded-2xl shadow-xl text-xs font-bold transition-all duration-300 flex items-center gap-2 ${
+        type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+      }`;
+      toast.innerHTML = `
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${type === 'success' ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'}"/></svg>
+        <span>${message}</span>
+      `;
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateY(0)';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+      }, 3500);
+    }
+
+    async function toggleOrderStatus(id, orderCode, curStatus, btnEl) {
       const nextStatus = curStatus === 'success' ? 'pending' : 'success';
-      const res = await fetch(`/api/orders?id=${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: nextStatus })
-      });
-      if (res.ok) await loadOrders();
+      if (btnEl) {
+        btnEl.disabled = true;
+        btnEl.innerText = 'Đang lưu...';
+        btnEl.classList.add('opacity-75');
+      }
+
+      try {
+        const res = await fetch(`/api/orders?id=${id}&order_code=${orderCode}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: nextStatus, order_code: orderCode })
+        });
+        
+        if (res.ok) {
+          const actionText = nextStatus === 'success' ? 'ĐÃ DUYỆT THÀNH CÔNG (success)' : 'ĐÃ ĐỔI VỀ (pending)';
+          showToast(`Đơn ${orderCode}: ${actionText}!`, 'success');
+          await loadOrders();
+        } else {
+          showToast(`Không thể cập nhật đơn ${orderCode}!`, 'error');
+          if (btnEl) {
+            btnEl.disabled = false;
+            btnEl.innerText = curStatus === 'success' ? '🔄 Đổi về pending' : '✓ Duyệt success';
+          }
+        }
+      } catch (err) {
+        showToast(`Lỗi kết nối: ${err.message}`, 'error');
+        if (btnEl) {
+          btnEl.disabled = false;
+          btnEl.innerText = curStatus === 'success' ? '🔄 Đổi về pending' : '✓ Duyệt success';
+        }
+      }
     }
 
     async function deleteOrder(id) {

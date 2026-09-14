@@ -64,25 +64,52 @@ export default async function handler(req, res) {
 
     // ================= XỬ LÝ CẬP NHẬT TRẠNG THÁI (PUT) =================
   if (req.method === 'PUT') {
-    const { id } = req.query;
+    const { id, order_code } = req.query;
     const body = req.body || {};
+    const targetCode = (order_code || body.order_code || "").toUpperCase();
+    const targetId = String(id || body.id || "");
     const newStatus = body.status || 'success';
-    if (global.__PENDING_ORDERS__) {
-      const target = global.__PENDING_ORDERS__.find(o => String(o.id) === String(id));
-      if (target) {
-        target.status = newStatus;
-        if (GOOGLE_SHEET_URL && target.order_code) {
-          try {
-            await fetch(GOOGLE_SHEET_URL, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ action: "update_status", order_code: target.order_code, status: newStatus })
-            });
-          } catch(e) {}
-        }
+
+    if (!global.__PENDING_ORDERS__) {
+      global.__PENDING_ORDERS__ = [];
+    }
+
+    // Tìm đơn trong cache
+    let found = global.__PENDING_ORDERS__.find(o => 
+      (targetCode && String(o.order_code).toUpperCase() === targetCode) ||
+      (targetId && String(o.id) === targetId)
+    );
+
+    if (found) {
+      found.status = newStatus;
+    } else if (targetCode) {
+      // Nếu đơn chưa có trong cache (ví dụ SePay hoặc mẫu), thêm vào cache với status mới
+      found = {
+        id: targetId || Date.now(),
+        order_code: targetCode,
+        status: newStatus
+      };
+      global.__PENDING_ORDERS__.unshift(found);
+    }
+
+    // Đồng bộ trạng thái mới sang Google Sheet Webhook
+    if (GOOGLE_SHEET_URL && targetCode) {
+      try {
+        await fetch(GOOGLE_SHEET_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "update_status",
+            order_code: targetCode,
+            status: newStatus
+          })
+        });
+      } catch(e) {
+        console.error("Lỗi sync update Google Sheet:", e);
       }
     }
-    return res.status(200).json({ success: true });
+
+    return res.status(200).json({ success: true, order_code: targetCode, status: newStatus });
   }
 
   // ================= XỬ LÝ XÓA ĐƠN (DELETE) =================
