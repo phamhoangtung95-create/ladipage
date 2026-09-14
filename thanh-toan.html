@@ -212,6 +212,7 @@
     const BANK_ACC = "7123498765878";
     const BANK_CODE = "MBBank";
     const BANK_HOLDER = "PHAM HOANG TUNG";
+    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzWeOI5SsnwPVKxC5A6gtF3PB0QZ5mW9V4mp0BqGAHUvbyQG_XAOQqvM0P6KUFVi8UXCQ/exec";
     const SEPAY_TOKEN = "NYZMQQ1FGWOUCPC3KKMIUZAOYYEWG9IDBFAS2RK702S5VTWURSNKXIADTCJFZNAM";
 
     let currentOrderCode = "";
@@ -351,14 +352,25 @@
           created_at: new Date().toISOString()
         };
 
+        // Gửi đơn hàng đồng thời lên Backend Vercel và Google Sheets trực tiếp
         try {
-          await fetch("/api/order/create", {
+          fetch("/api/order/create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderData)
-          });
-        } catch (apiErr) {
-          console.warn("Backend API error:", apiErr);
+          }).catch(e => console.warn("API error:", e));
+
+          // Gửi trực tiếp về Google Sheet Webhook (dùng no-cors để đảm bảo luôn ghi thành công kể cả CORS)
+          if (GOOGLE_SHEET_URL) {
+            fetch(GOOGLE_SHEET_URL, {
+              method: "POST",
+              mode: "no-cors",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(orderData)
+            }).catch(e => console.warn("Sheet direct error:", e));
+          }
+        } catch (errSend) {
+          console.warn("Send error:", errSend);
         }
 
         // Tạo link VietQR chuẩn SePay

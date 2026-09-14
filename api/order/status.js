@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   }
 
   const SEPAY_TOKEN = "NYZMQQ1FGWOUCPC3KKMIUZAOYYEWG9IDBFAS2RK702S5VTWURSNKXIADTCJFZNAM";
-  const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL || "https://script.google.com/macros/s/AKfycbxdB65kVVnO0dQejlabxhZp8XO8GdwEd2Sknn3zOcEOXr6fuwOeGlxHTijdzR51sv7Gbw/exec";
+  const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL || "https://script.google.com/macros/s/AKfycbzWeOI5SsnwPVKxC5A6gtF3PB0QZ5mW9V4mp0BqGAHUvbyQG_XAOQqvM0P6KUFVi8UXCQ/exec";
   const SUPABASE_URL = process.env.SUPABASE_URL || "";
   const SUPABASE_KEY = process.env.SUPABASE_KEY || "";
 
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       const amountIn = parseFloat(t.amount_in || 0);
       if (content.toUpperCase().includes(order_code.toUpperCase()) && amountIn > 0) {
         
-        // Cập nhật trạng thái trong Google Sheet
+        // Cập nhật trạng thái đơn thành success trong Google Sheet
         if (GOOGLE_SHEET_URL) {
           try {
             await fetch(GOOGLE_SHEET_URL, {
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
           } catch(e) {}
         }
 
-        // Cập nhật trạng thái trong Supabase
+        // Cập nhật Supabase nếu có
         if (SUPABASE_URL && SUPABASE_KEY) {
           try {
             await fetch(`${SUPABASE_URL}/rest/v1/orders?order_code=eq.${order_code}`, {

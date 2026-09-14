@@ -7,8 +7,9 @@ export default async function handler(req, res) {
   const body = req.body || {};
   const { order_code, customer_name, phone, email, zalo, product_name, amount, status, created_at } = body;
 
-  // 1. Gửi dữ liệu về Google Sheets Webhook (nếu có biến môi trường hoặc Webhook URL)
-  const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL || "https://script.google.com/macros/s/AKfycbxdB65kVVnO0dQejlabxhZp8XO8GdwEd2Sknn3zOcEOXr6fuwOeGlxHTijdzR51sv7Gbw/exec";
+  const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL || "https://script.google.com/macros/s/AKfycbzWeOI5SsnwPVKxC5A6gtF3PB0QZ5mW9V4mp0BqGAHUvbyQG_XAOQqvM0P6KUFVi8UXCQ/exec";
+  
+  // 1. Gửi dữ liệu về Google Sheets Webhook
   if (GOOGLE_SHEET_URL) {
     try {
       await fetch(GOOGLE_SHEET_URL, {
@@ -32,7 +33,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // 2. Gửi dữ liệu về Supabase (nếu có SUPABASE_URL và SUPABASE_KEY)
+  // 2. Gửi dữ liệu về Supabase (nếu có cấu hình)
   const SUPABASE_URL = process.env.SUPABASE_URL || "";
   const SUPABASE_KEY = process.env.SUPABASE_KEY || "";
   if (SUPABASE_URL && SUPABASE_KEY) {
