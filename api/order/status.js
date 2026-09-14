@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   }
 
   const SEPAY_TOKEN = "NYZMQQ1FGWOUCPC3KKMIUZAOYYEWG9IDBFAS2RK702S5VTWURSNKXIADTCJFZNAM";
-  const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL || "https://script.google.com/macros/s/AKfycbzWeOI5SsnwPVKxC5A6gtF3PB0QZ5mW9V4mp0BqGAHUvbyQG_XAOQqvM0P6KUFVi8UXCQ/exec";
+  const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL || "https://script.google.com/macros/s/AKfycbw8tJe-h4inUDXiPWgdNQqd7P1MhvMnWFQZ4A_1_1cYzL9NwZennY2IoVcU39KXeVuyXg/exec";
   const SUPABASE_URL = process.env.SUPABASE_URL || "";
   const SUPABASE_KEY = process.env.SUPABASE_KEY || "";
 

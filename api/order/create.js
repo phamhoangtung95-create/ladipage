@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   const body = req.body || {};
   const { order_code, customer_name, phone, email, zalo, product_name, amount, status, created_at } = body;
 
-  const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL || "https://script.google.com/macros/s/AKfycbzWeOI5SsnwPVKxC5A6gtF3PB0QZ5mW9V4mp0BqGAHUvbyQG_XAOQqvM0P6KUFVi8UXCQ/exec";
+  const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL || "https://script.google.com/macros/s/AKfycbw8tJe-h4inUDXiPWgdNQqd7P1MhvMnWFQZ4A_1_1cYzL9NwZennY2IoVcU39KXeVuyXg/exec";
   
   // 1. Gửi dữ liệu về Google Sheets Webhook
   if (GOOGLE_SHEET_URL) {
@@ -24,8 +24,8 @@ export default async function handler(req, res) {
           zalo: zalo || "",
           product_name: product_name || "",
           amount: amount || 0,
-          status: status || "pending",
-          created_at: created_at || new Date().toISOString()
+          status: status || "Chờ thanh toán (pending)",
+          created_at: created_at || new Date().toLocaleString("vi-VN")
         })
       });
     } catch (sheetErr) {
