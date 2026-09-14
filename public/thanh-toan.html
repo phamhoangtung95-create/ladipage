@@ -338,7 +338,7 @@
         const randomNum = Math.floor(1000 + Math.random() * 9000);
         currentOrderCode = "DH" + randomNum;
 
-        // Lưu đơn hàng vào backend (nếu có API) & backup vào localStorage
+        // Lưu đơn hàng trực tiếp lên Cloud Database (Google Sheets / Supabase)
         const orderData = {
           order_code: currentOrderCode,
           customer_name: name,
@@ -358,10 +358,8 @@
             body: JSON.stringify(orderData)
           });
         } catch (apiErr) {
-          console.warn("Backend API not reached directly, proceeding with client checkout:", apiErr);
+          console.warn("Backend API error:", apiErr);
         }
-
-// Đã gỡ bỏ localStorage theo yêu cầu — dữ liệu lưu trực tiếp vào Cloud DB
 
         // Tạo link VietQR chuẩn SePay
         const qrUrl = "https://qr.sepay.vn/img?acc=" + BANK_ACC + "&bank=" + BANK_CODE + "&amount=" + amount + "&des=" + currentOrderCode + "&template=compact&holder=" + encodeURIComponent(BANK_HOLDER);
