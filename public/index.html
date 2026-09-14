@@ -767,6 +767,24 @@
                 </div>
               </div>
 
+              <!-- Câu 6: Email nhận tài liệu & tư vấn tự động -->
+              <div>
+                <label class="block text-xs sm:text-sm font-bold text-slate-900 mb-1.5" for="formEmail">
+                  6. Email nhận tài liệu & tư vấn tự động: <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                  <input 
+                    type="email" 
+                    name="email" 
+                    id="formEmail" 
+                    required 
+                    placeholder="Ví dụ: nguyenvana@gmail.com" 
+                    class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all bg-slate-50/50 pl-11"
+                  />
+                  <span class="absolute left-3.5 top-3.5 text-slate-400 text-base">✉️</span>
+                </div>
+              </div>
+
               <!-- Thông báo kết quả gửi form -->
               <div id="formMessage" class="hidden p-3.5 rounded-xl text-xs font-bold text-center"></div>
 
@@ -1321,6 +1339,7 @@
       const q3 = document.querySelector('input[name="q3_budget"]:checked')?.value || "";
       const phone = document.getElementById("formPhone").value.trim();
       const fullName = document.getElementById("formFullName").value.trim();
+      const email = document.getElementById("formEmail") ? document.getElementById("formEmail").value.trim() : "";
 
       // Hiệu ứng đang gửi
       btnSubmit.disabled = true;
@@ -1340,11 +1359,29 @@
       const params = new URLSearchParams();
       params.append("fullName", fullName);
       params.append("phone", phone);
+      params.append("email", email);
       params.append("interest", summaryInterest);
       params.append("q1_interest", q1);
       params.append("q2_target", q2);
       params.append("q3_budget", q3);
       params.append("submittedAt", new Date().toLocaleString("vi-VN"));
+
+      // Đồng bộ vào CRM /api/customers
+      try {
+        await fetch("/api/customers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: fullName,
+            phone: phone,
+            email: email,
+            zalo: phone,
+            interest: summaryInterest
+          })
+        });
+      } catch (crmErr) {
+        console.warn("Lưu CRM cục bộ:", crmErr);
+      }
 
       if (GOOGLE_SHEET_URL && GOOGLE_SHEET_URL.startsWith("http")) {
         try {
@@ -1360,7 +1397,7 @@
 
       // Thông báo thành công
       formMessage.className = "p-4 rounded-2xl text-xs font-bold text-center bg-emerald-50 text-emerald-700 border border-emerald-200 block shadow-sm";
-      formMessage.innerHTML = `🎉 Cảm ơn <strong>${fullName}</strong>! Thu Trang đã nhận được đầy đủ 5 câu trả lời khảo sát và sẽ gọi hỗ trợ anh/chị sớm nhất!`;
+      formMessage.innerHTML = `🎉 Cảm ơn <strong>${fullName}</strong>! Thu Trang đã nhận được thông tin khảo sát và email <strong>${email}</strong> để gửi tài liệu hỗ trợ sớm nhất!`;
 
       // Reset form
       leadForm.reset();
