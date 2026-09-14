@@ -1383,6 +1383,24 @@
         console.warn("Lưu CRM cục bộ:", crmErr);
       }
 
+      // Tự động gửi Email Sequence qua Resend (hỗ trợ chế độ test +test)
+      let sequenceNote = "";
+      if (email) {
+        try {
+          const seqRes = await fetch("/api/send-sequence", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, fullName })
+          });
+          const seqData = await seqRes.json();
+          if (seqData.mode === "test") {
+            sequenceNote = "<br><span class='text-rose-600 font-bold'>⚡ Chế độ Test (+test): Đã gửi toàn bộ 3 email ngay lập tức vào hộp thư của bạn!</span>";
+          }
+        } catch (seqErr) {
+          console.warn("Lỗi gửi email sequence:", seqErr);
+        }
+      }
+
       if (GOOGLE_SHEET_URL && GOOGLE_SHEET_URL.startsWith("http")) {
         try {
           await fetch(GOOGLE_SHEET_URL, {
@@ -1397,7 +1415,7 @@
 
       // Thông báo thành công
       formMessage.className = "p-4 rounded-2xl text-xs font-bold text-center bg-emerald-50 text-emerald-700 border border-emerald-200 block shadow-sm";
-      formMessage.innerHTML = `🎉 Cảm ơn <strong>${fullName}</strong>! Thu Trang đã nhận được thông tin khảo sát và email <strong>${email}</strong> để gửi tài liệu hỗ trợ sớm nhất!`;
+      formMessage.innerHTML = `🎉 Cảm ơn <strong>${fullName}</strong>! Thu Trang đã nhận được thông tin khảo sát và email <strong>${email}</strong> để gửi tài liệu hỗ trợ sớm nhất!${sequenceNote}`;
 
       // Reset form
       leadForm.reset();
