@@ -361,11 +361,7 @@
           console.warn("Backend API not reached directly, proceeding with client checkout:", apiErr);
         }
 
-        try {
-          const localList = JSON.parse(localStorage.getItem("sepay_orders") || "[]");
-          localList.unshift(orderData);
-          localStorage.setItem("sepay_orders", JSON.stringify(localList.slice(0, 50)));
-        } catch (storageErr) {}
+// Đã gỡ bỏ localStorage theo yêu cầu — dữ liệu lưu trực tiếp vào Cloud DB
 
         // Tạo link VietQR chuẩn SePay
         const qrUrl = "https://qr.sepay.vn/img?acc=" + BANK_ACC + "&bank=" + BANK_CODE + "&amount=" + amount + "&des=" + currentOrderCode + "&template=compact&holder=" + encodeURIComponent(BANK_HOLDER);
