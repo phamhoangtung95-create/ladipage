@@ -1387,14 +1387,24 @@
       let sequenceNote = "";
       if (email) {
         try {
-          const seqRes = await fetch("/api/send-sequence", {
+          // Gọi trực tiếp đến www.thutrangbaohiem.io.vn để không bị lỗi 308 redirect khi ở apex domain hoặc local/surge
+          const apiEndpoint = (window.location.hostname === 'www.thutrangbaohiem.io.vn')
+            ? '/api/send-sequence'
+            : 'https://www.thutrangbaohiem.io.vn/api/send-sequence';
+
+          const seqRes = await fetch(apiEndpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, fullName })
           });
           const seqData = await seqRes.json();
-          if (seqData.mode === "test") {
-            sequenceNote = "<br><span class='text-rose-600 font-bold'>⚡ Chế độ Test (+test): Đã gửi toàn bộ 3 email ngay lập tức vào hộp thư của bạn!</span>";
+          if (seqData.success) {
+            if (seqData.mode === "test") {
+              sequenceNote = "<br><span class='text-rose-600 font-bold'>⚡ Chế độ Test (+test): Đã gửi toàn bộ 3 email ngay lập tức vào hộp thư " + email + "! (Vui lòng kiểm tra cả mục Hộp thư đến, Quảng cáo và Thư rác/Spam)</span>";
+            }
+          } else {
+            console.warn("Lỗi gửi email sequence:", seqData.error);
+            sequenceNote = "<br><span class='text-amber-600 text-xs font-semibold'>Lưu ý gửi email: " + (seqData.error || "Chưa gửi được") + "</span>";
           }
         } catch (seqErr) {
           console.warn("Lỗi gửi email sequence:", seqErr);
