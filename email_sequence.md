@@ -130,3 +130,44 @@ Thương mến,
 **Thu Trang (TrangPyBảoHiểm)**  
 Hotline/Zalo: 0354 859 568  
 Website chính thức: https://thutrangbaohiem.io.vn
+
+---
+
+## 📩 EMAIL XÁC NHẬN ĐƠN HÀNG (ORDER CONFIRMATION EMAIL)
+
+* **Thời điểm gửi:** Gửi tự động ngay khi admin thêm đơn hàng mới vào bảng `orders` trong `/admin` (hoặc khi khách đặt mua thành công).
+* **Tiêu đề:** `[Thu Trang] Xác nhận đơn hàng thành công — Cảm ơn bạn đã tin tưởng! 🌸 (Mã đơn: {{order_code}})`
+* **Người gửi:** `Thu Trang <hi@thutrangbaohiem.io.vn>`
+
+### Nội dung Email:
+
+Chào **{{customer_name}}**,
+
+Trang vừa nhận được thông tin đơn hàng của bạn trên hệ thống. Thật sự lúc này mình rất vui và xúc động khi nhận được sự gửi gắm, tin tưởng của bạn dành cho mình!
+
+Trang xin gửi bạn thông tin chi tiết đơn hàng:
+
+🧾 **THÔNG TIN ĐƠN HÀNG:**
+* **Mã đơn hàng:** `{{order_code}}`
+* **Tên sản phẩm:** `{{product_name}}`
+* **Số tiền thanh toán:** `{{amount}} VNĐ`
+* **Trạng thái:** `{{status}}`
+
+📦 **HƯỚNG DẪN NHẬN HÀNG:**
+* **Nếu là sản phẩm số (Checklist / Ebook):** Bạn có thể tải ngay tài liệu về máy qua link bên dưới để xem trực tiếp trên điện thoại hoặc máy tính.
+* **Nếu là sản phẩm vật lý (Sách in):** Trang sẽ trực tiếp đóng gói cẩn thận và gửi chuyển phát nhanh đến bạn trong 1 – 3 ngày tới. Bưu tá sẽ liên hệ trước qua số điện thoại `{{phone}}`.
+
+🔗 **Link tải tài liệu số (Checklist 10 Điểm Chết & Ebook):**  
+👉 **[https://thutrangbaohiem.io.vn/checklist](https://thutrangbaohiem.io.vn/checklist)**
+
+8 năm làm nghề, Trang luôn tâm niệm: Mỗi khách hàng tìm đến mình không chỉ để mua một sản phẩm hay một cuốn cẩm nang, mà là tìm kiếm một sự an tâm thực sự.
+
+Nếu trong quá trình đọc tài liệu hay rà soát hợp đồng bảo hiểm của gia đình, bạn có bất kỳ điều khoản nào băn khoăn, đừng ngần ngại nhắn tin trực tiếp cho Trang qua Zalo nhé. Trang luôn sẵn lòng kề vai hỗ trợ bạn!
+
+Chúc bạn và gia đình luôn dồi dào sức khỏe, an yên và vạn sự như ý!
+
+Thương mến,  
+**Thu Trang (TrangPyBảoHiểm)**  
+Hotline/Zalo hỗ trợ 1-1: 0354 859 568  
+Website chính thức: https://thutrangbaohiem.io.vn
+

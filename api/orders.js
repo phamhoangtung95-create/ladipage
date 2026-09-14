@@ -7,10 +7,86 @@ if (!global.__STATUS_OVERRIDES__) {
 }
 
 
+// Template HTML email xác nhận đơn hàng chuẩn Brand Voice Thu Trang
+function getOrderConfirmationEmail(order) {
+  const customerName = order.customer_name || "Quý khách";
+  const amountFormatted = Number(order.amount || 0).toLocaleString("vi-VN");
+  const isPhysical = order.product_type === "physical";
+  const statusText = order.status === "success" ? "Đã thanh toán thành công" : "Đã tiếp nhận (Đang xử lý)";
+
+  return {
+    subject: `[Thu Trang] Xác nhận đơn hàng #${order.order_code} — Cảm ơn bạn đã tin tưởng! 🌸`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; line-height: 1.6; font-size: 15px; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #ffe4e6;">
+          <h2 style="color: #e11d48; margin: 0; font-size: 20px;">Thu Trang | TrangPyBảoHiểm</h2>
+          <p style="color: #64748b; font-size: 13px; margin: 4px 0 0;">Xác nhận đơn hàng và hướng dẫn nhận tài liệu</p>
+        </div>
+
+        <p>Chào <strong>${customerName}</strong>,</p>
+
+        <p>Trang vừa nhận được thông tin đơn hàng của bạn trên hệ thống. Thật sự lúc này mình rất vui và xúc động khi nhận được sự gửi gắm, tin tưởng của bạn dành cho Trang!</p>
+
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 20px 0;">
+          <h3 style="color: #0f172a; margin: 0 0 12px; font-size: 16px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px;">🧾 THÔNG TIN ĐƠN HÀNG</h3>
+          <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Mã đơn hàng:</td>
+              <td style="padding: 6px 0; font-weight: bold; color: #e11d48; text-align: right;">#${order.order_code}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Sản phẩm:</td>
+              <td style="padding: 6px 0; font-weight: bold; color: #0f172a; text-align: right;">${order.product_name}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Số tiền:</td>
+              <td style="padding: 6px 0; font-weight: bold; color: #0f172a; text-align: right;">${amountFormatted} VNĐ</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Trạng thái:</td>
+              <td style="padding: 6px 0; font-weight: bold; color: #059669; text-align: right;">${statusText}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 16px; margin: 20px 0;">
+          <p style="margin: 0 0 10px; font-weight: bold; color: #9f1239;">📦 HƯỚNG DẪN NHẬN HÀNG:</p>
+          ${isPhysical ? `
+            <p style="margin: 0; font-size: 14px; color: #475569;">
+              Vì đây là <strong>sản phẩm vật lý (Sách in)</strong>, Trang sẽ trực tiếp đóng gói cẩn thận và gửi chuyển phát nhanh đến địa chỉ của bạn trong 1 – 3 ngày tới. Bưu tá sẽ liên hệ với bạn trước khi giao qua số điện thoại <strong>${order.phone || 'của bạn'}</strong>.
+            </p>
+          ` : `
+            <p style="margin: 0 0 12px; font-size: 14px; color: #475569;">
+              Vì đây là <strong>tài liệu số</strong>, bạn có thể bấm vào nút bên dưới để tải và đọc ngay bộ tài liệu Checklist / Cẩm nang trên điện thoại hoặc máy tính:
+            </p>
+            <div style="text-align: center; margin: 10px 0;">
+              <a href="https://thutrangbaohiem.io.vn/checklist" style="display: inline-block; background: #e11d48; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.2);">
+                📥 BẤM ĐỂ TẢI TÀI LIỆU CỦA BẠN NGAY →
+              </a>
+            </div>
+          `}
+        </div>
+
+        <p>8 năm làm nghề, Trang luôn tâm niệm: Mỗi khách hàng tìm đến mình không chỉ để mua một sản phẩm hay một cuốn cẩm nang, mà là tìm kiếm một sự an tâm thực sự.</p>
+
+        <p>Nếu trong quá trình đọc tài liệu hay rà soát hợp đồng bảo hiểm của gia đình, bạn có bất kỳ điều khoản nào băn khoăn, đừng ngần ngại nhắn tin trực tiếp cho Trang qua Zalo nhé. Trang luôn sẵn lòng kề vai hỗ trợ bạn!</p>
+
+        <p>Chúc bạn và gia đình luôn dồi dào sức khỏe, an yên và vạn sự như ý!</p>
+
+        <div style="margin-top: 30px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b;">
+          <p style="margin: 0 0 4px;"><strong>Thu Trang (TrangPyBảoHiểm)</strong></p>
+          <p style="margin: 0 0 4px;">Hotline/Zalo hỗ trợ 1-1: <strong>0354 859 568</strong></p>
+          <p style="margin: 0;">Website chính thức: <a href="https://thutrangbaohiem.io.vn" style="color: #e11d48; text-decoration: none;">https://thutrangbaohiem.io.vn</a></p>
+        </div>
+      </div>
+    `
+  };
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const SEPAY_TOKEN = "NYZMQQ1FGWOUCPC3KKMIUZAOYYEWG9IDBFAS2RK702S5VTWURSNKXIADTCJFZNAM";
@@ -39,6 +115,35 @@ export default async function handler(req, res) {
       global.__PENDING_ORDERS__.pop();
     }
 
+    // Tự động gửi Email xác nhận đơn hàng qua Resend API
+    let emailSentResult = null;
+    if (newOrder.email) {
+      try {
+        const { getResendConfig } = await import('./send-email.js');
+        const { apiKey, fromEmail } = getResendConfig();
+        const emailContent = getOrderConfirmationEmail(newOrder);
+
+        const emailRes = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'User-Agent': 'resend-node:2.0.0'
+          },
+          body: JSON.stringify({
+            from: fromEmail,
+            to: [newOrder.email],
+            subject: emailContent.subject,
+            html: emailContent.html
+          })
+        });
+        emailSentResult = await emailRes.json();
+        console.log(`[Order Email] Đã gửi email xác nhận cho đơn ${newOrder.order_code} tới ${newOrder.email}:`, emailSentResult.id);
+      } catch (errEmail) {
+        console.error("Lỗi gửi email xác nhận đơn hàng:", errEmail);
+      }
+    }
+
     // Gửi tiếp về Google Sheet Webhook
     if (GOOGLE_SHEET_URL) {
       try {
@@ -54,7 +159,7 @@ export default async function handler(req, res) {
             zalo: newOrder.zalo,
             product_name: newOrder.product_name,
             amount: newOrder.amount,
-            status: "pending",
+            status: newOrder.status,
             created_at: newOrder.created_at
           })
         });
@@ -63,7 +168,12 @@ export default async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ success: true, order_code: newOrder.order_code, order: newOrder });
+    return res.status(200).json({
+      success: true,
+      order_code: newOrder.order_code,
+      order: newOrder,
+      email_sent: !!emailSentResult?.id
+    });
   }
 
     // ================= XỬ LÝ CẬP NHẬT TRẠNG THÁI (PUT) =================
