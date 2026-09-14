@@ -24,6 +24,7 @@
       background-color: #f0fdf4 !important;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col justify-between">
 
@@ -41,7 +42,7 @@
   </header>
 
   <main class="max-w-4xl mx-auto px-4 py-8 w-full">
-    <div class="grid md:grid-cols-12 gap-8 items-start">
+    <div id="checkoutGrid" class="grid md:grid-cols-12 gap-8 items-start">
       
       <!-- Cột trái: Form thông tin thanh toán -->
       <div id="formSection" class="md:col-span-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
@@ -202,6 +203,152 @@
 
       </div>
     </div>
+  
+    <!-- ================= MÀN HÌNH CẢM ƠN & HƯỚNG DẪN TIẾP THEO ================= -->
+    <section id="thankYouSection" class="hidden max-w-3xl mx-auto space-y-6">
+      
+      <!-- Card Chúc mừng & Cảm ơn -->
+      <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm text-center relative overflow-hidden">
+        <!-- Background glow -->
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-100/70 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-rose-100/70 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+          <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        </div>
+
+        <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 text-xs font-bold px-3.5 py-1 rounded-full border border-emerald-200 mb-3">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+          Giao dịch đã xác nhận thành công qua VietQR • SePay
+        </span>
+
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2">
+          Cảm ơn bạn đã tin tưởng Thu Trang! 🎉
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
+          Hệ thống đã nhận được khoản thanh toán của bạn. Chúc mừng bạn đã sở hữu bộ tài liệu chuẩn để rà soát và bảo vệ quyền lợi bảo hiểm an tâm trọn đời cho cả gia đình.
+        </p>
+
+        <!-- Biên lai đơn hàng (Receipt Box) -->
+        <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-5 text-left text-xs space-y-2.5 max-w-lg mx-auto shadow-xs">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+            <span class="text-slate-500 font-medium">Mã đơn hàng:</span>
+            <div class="flex items-center gap-2">
+              <span id="succOrderCode" class="font-mono font-bold text-rose-600 text-sm"></span>
+              <button type="button" onclick="copySuccessCode()" class="text-[10px] px-2 py-0.5 bg-white border border-slate-200 rounded hover:bg-slate-100 text-slate-600 font-semibold">Copy</button>
+            </div>
+          </div>
+          <div class="flex justify-between items-center"><span class="text-slate-500">Khách hàng:</span><span id="succCustName" class="font-bold text-slate-800 text-sm"></span></div>
+          <div class="flex justify-between items-center"><span class="text-slate-500">Email nhận file:</span><span id="succEmail" class="font-medium text-slate-900 font-mono"></span></div>
+          <div class="flex justify-between items-center"><span class="text-slate-500">Số tiền:</span><span id="succAmount" class="font-bold text-slate-900 text-sm"></span></div>
+          <div class="flex justify-between items-center"><span class="text-slate-500">Thời gian giao dịch:</span><span id="succTime" class="text-slate-600"></span></div>
+          <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+            <span class="text-slate-500">Trạng thái thanh toán:</span>
+            <span class="font-bold text-emerald-700 bg-emerald-100/80 px-2.5 py-0.5 rounded-full uppercase text-[11px] flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              ĐÃ THANH TOÁN (SUCCESS)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hộp Tải Tài Liệu Ngay (Download Box) -->
+      <div class="bg-gradient-to-r from-rose-500 via-rose-600 to-red-600 p-6 sm:p-7 rounded-3xl text-white shadow-lg shadow-rose-500/20 flex flex-col sm:flex-row items-center justify-between gap-5">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 shadow-inner">
+            📄
+          </div>
+          <div>
+            <span class="text-[11px] uppercase tracking-wider font-extrabold text-rose-200 block mb-0.5">Tài liệu đính kèm</span>
+            <h3 class="text-lg font-bold leading-tight">Checklist 10 Điểm Chết Hợp Đồng Bảo Hiểm</h3>
+            <p class="text-xs text-rose-100 mt-1">File PDF chính thức • 588 KB • Bản quyền Thu Trang Bảo Hiểm</p>
+          </div>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto">
+          <a href="/checklist.pdf" download="Checklist-10-Diem-Chet-Hop-Dong-Bao-Hiem.pdf" target="_blank"
+            class="px-5 py-3 bg-white text-rose-600 hover:bg-rose-50 rounded-xl font-extrabold text-xs shadow-md transition flex items-center justify-center gap-2">
+            <span>📥 TẢI FILE PDF VỀ MÁY</span>
+          </a>
+          <a href="/checklist.html" target="_blank"
+            class="px-4 py-3 bg-rose-700/60 hover:bg-rose-700 text-white rounded-xl font-bold text-xs border border-rose-400/40 transition flex items-center justify-center gap-1.5">
+            <span>👁️ Đọc trên web</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Hướng Dẫn Các Bước Tiếp Theo (Next Steps) -->
+      <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-5">
+        <div class="border-b border-slate-100 pb-3">
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <span>📌 Các bước hướng dẫn tiếp theo dành cho bạn</span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">Vui lòng xem kỹ 3 bước dưới đây để kiểm tra và bảo vệ trọn vẹn quyền lợi bảo hiểm:</p>
+        </div>
+
+        <div class="space-y-3.5">
+          <!-- Bước 1 -->
+          <div class="flex gap-4 items-start p-4 rounded-2xl bg-slate-50 border border-slate-100">
+            <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 font-extrabold flex items-center justify-center text-xs flex-shrink-0">
+              01
+            </div>
+            <div class="text-xs text-slate-600 space-y-1">
+              <h4 class="font-bold text-slate-900 text-sm">Lưu file PDF và kiểm tra Email xác nhận</h4>
+              <p>Bấm nút <strong>"Tải file PDF về máy"</strong> ở trên để lưu vào điện thoại hoặc máy tính. Đồng thời, một bản sao tài liệu cũng đã được gửi tới email <strong id="succEmailStep" class="text-rose-600"></strong>. <em>(Nếu không thấy ở hộp thư đến Inbox, bạn hãy kiểm tra thêm mục Thư rác / Spam nhé).</em></p>
+            </div>
+          </div>
+
+          <!-- Bước 2 -->
+          <div class="flex gap-4 items-start p-4 rounded-2xl bg-slate-50 border border-slate-100">
+            <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 font-extrabold flex items-center justify-center text-xs flex-shrink-0">
+              02
+            </div>
+            <div class="text-xs text-slate-600 space-y-1">
+              <h4 class="font-bold text-slate-900 text-sm">Mở hợp đồng bảo hiểm gia đình & đối chiếu 10 điểm chết</h4>
+              <p>Hãy lật đến phần <strong>Quy tắc và Điều khoản</strong> trong cuốn hợp đồng của bạn. Dùng bút dạ quang đánh dấu theo 10 điểm trong checklist, đặc biệt chú ý 4 mục sống còn: <strong>Bệnh có sẵn, Thời gian chờ thai sản/nằm viện, Đồng chi trả và Điều khoản loại trừ</strong>.</p>
+            </div>
+          </div>
+
+          <!-- Bước 3 -->
+          <div class="flex gap-4 items-start p-4 rounded-2xl bg-amber-50/70 border border-amber-200">
+            <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 font-extrabold flex items-center justify-center text-xs flex-shrink-0">
+              03
+            </div>
+            <div class="text-xs text-slate-700 space-y-2">
+              <h4 class="font-bold text-amber-950 text-sm">Được Thu Trang hỗ trợ rà soát 1-1 Miễn Phí (Nếu gặp khó khăn)</h4>
+              <p>Nếu bạn đọc hợp đồng mà thấy các thuật ngữ quá phức tạp, mập mờ hoặc đại lý cũ đã nghỉ việc bỏ mặc ("hợp đồng mồ côi"), hãy kết nối ngay với Trang qua Zalo. Với 8 năm kinh nghiệm tại Hà Nội, Trang sẽ trực tiếp đọc và phân tích từng trang điều khoản cho bạn hoàn toàn miễn phí, thẳng thắn và không chèo kéo.</p>
+              <div class="pt-1">
+                <a href="https://zalo.me/0354859568" target="_blank" rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition">
+                  <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.49 3.53 1.35 5L2 22l5.22-1.31C8.63 21.49 10.27 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+                  <span>💬 Nhắn tin Zalo trực tiếp với Thu Trang (0354.859.568)</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Box chân dung Thu Trang & Nút điều hướng -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3 text-left">
+          <img src="/thu_trang_square.jpg" alt="Thu Trang Bảo Hiểm" class="w-12 h-12 rounded-full object-cover border-2 border-rose-200 shadow-sm flex-shrink-0" onerror="this.src='/thu_trang_portrait.jpg'">
+          <div>
+            <h5 class="text-xs font-bold text-slate-900">Thu Trang — Chuyên Gia Bảo Hiểm Nhân Thọ</h5>
+            <p class="text-[11px] text-slate-500">Kinh nghiệm từ 2016 tại Hà Nội • Hotline/Zalo: 0354.859.568</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+          <a href="/" class="text-xs font-semibold px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition">
+            ← Về Trang chủ
+          </a>
+          <a href="/admin" target="_blank" class="text-xs font-semibold px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+            Admin Panel →
+          </a>
+        </div>
+      </div>
+
+    </section>
+
   </main>
 
   <footer class="text-center py-5 text-xs text-slate-400 border-t border-slate-200 bg-white">
@@ -420,15 +567,48 @@
       }, 2500);
     }
 
+    function copySuccessCode() {
+      const code = document.getElementById("succOrderCode")?.innerText;
+      if (code) {
+        navigator.clipboard.writeText(code);
+        alert("Đã sao chép mã đơn hàng: " + code);
+      }
+    }
+
     function onPaymentSuccess(orderCode, name, email, amount) {
       if (checkInterval) clearInterval(checkInterval);
-      document.getElementById("qrContent").classList.add("hidden");
-      document.getElementById("formSection").classList.add("opacity-50", "pointer-events-none");
-      document.getElementById("successContent").classList.remove("hidden");
-      document.getElementById("succOrderCode").innerText = orderCode;
-      document.getElementById("succCustName").innerText = name;
-      document.getElementById("succEmail").innerText = email;
-      document.getElementById("succAmount").innerText = amount.toLocaleString("vi-VN") + " đ";
+
+      // Ẩn toàn bộ khung checkout hai cột cũ
+      const checkoutGrid = document.getElementById("checkoutGrid");
+      if (checkoutGrid) checkoutGrid.classList.add("hidden");
+
+      // Hiện màn hình Cảm ơn & Hướng dẫn chuyên sâu
+      const thankYou = document.getElementById("thankYouSection");
+      if (thankYou) thankYou.classList.remove("hidden");
+
+      // Điền thông tin vào các trường hiển thị
+      if (document.getElementById("succOrderCode")) document.getElementById("succOrderCode").innerText = orderCode;
+      if (document.getElementById("succCustName")) document.getElementById("succCustName").innerText = name;
+      if (document.getElementById("succEmail")) document.getElementById("succEmail").innerText = email;
+      if (document.getElementById("succEmailStep")) document.getElementById("succEmailStep").innerText = email;
+      if (document.getElementById("succAmount")) document.getElementById("succAmount").innerText = Number(amount).toLocaleString("vi-VN") + " đ";
+      if (document.getElementById("succTime")) document.getElementById("succTime").innerText = new Date().toLocaleString("vi-VN");
+
+      // Cuộn mượt lên đầu trang
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      // Kích hoạt hiệu ứng pháo hoa chúc mừng
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+        setTimeout(() => {
+          confetti({ particleCount: 50, angle: 60, spread: 55, origin: { x: 0 } });
+          confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1 } });
+        }, 350);
+      }
     }
 
     loadProductsDropdown();
