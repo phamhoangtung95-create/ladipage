@@ -48,7 +48,7 @@
             <label class="text-xs font-bold text-slate-800" for="adminPasswordInput">
               Mật khẩu quản trị <span class="text-rose-500">*</span>
             </label>
-            <span class="text-[11px] text-slate-400 font-medium">Mặc định: <code class="bg-slate-100 px-1 py-0.5 rounded font-mono font-bold text-rose-600">trangpy2026</code></span>
+            <span class="text-[11px] text-slate-400 font-medium flex items-center gap-1">🔒 Bảo mật</span>
           </div>
           <div class="relative">
             <input 
@@ -423,8 +423,8 @@
 
   <script>
     // ================= XỬ LÝ ĐĂNG NHẬP ADMIN & CHỐNG BOT LOGIN =================
-    const ADMIN_PASSWORD_HASH = "b9d28f88a641c6973d524779272478fd9a42eb6b0ec10763f6b411e868933498"; // SHA-256 của trangpy2026
-    const VALID_FALLBACK_PASSWORDS = ["trangpy2026", "admin2026", "trang2026"];
+    // Mật khẩu được mã hóa SHA-256 an toàn, không để lộ plain-text trong source
+    const ADMIN_PASSWORD_HASH = "b9d28f88a641c6973d524779272478fd9a42eb6b0ec10763f6b411e868933498";
     const AUTH_SESSION_KEY = "admin_auth_session";
     const LOCKOUT_KEY = "admin_lockout_until";
     const FAILED_ATTEMPTS_KEY = "admin_failed_count";
@@ -578,7 +578,7 @@
       const inputPass = document.getElementById("adminPasswordInput")?.value || "";
       const inputHash = await hashStringSHA256(inputPass);
 
-      const isCorrect = (inputHash === ADMIN_PASSWORD_HASH) || VALID_FALLBACK_PASSWORDS.includes(inputPass);
+      const isCorrect = (inputHash === ADMIN_PASSWORD_HASH);
 
       if (isCorrect) {
         // Đăng nhập thành công!
@@ -608,7 +608,7 @@
         } else {
           if (errEl) {
             errEl.classList.remove("hidden");
-            errEl.innerHTML = `❌ <b>Mật khẩu không đúng!</b> (Đã thử sai ${failedCount}/5 lần). Mật khẩu mặc định: <code class="bg-slate-100 px-1 py-0.5 rounded font-bold text-rose-600">trangpy2026</code>`;
+            errEl.innerHTML = `❌ <b>Mật khẩu không chính xác!</b> (Đã thử sai ${failedCount}/5 lần).`;
           }
         }
       }
