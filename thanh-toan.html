@@ -182,10 +182,10 @@
           <p class="text-xs text-slate-600 mb-4">Cổng thanh toán SePay đã ghi nhận giao dịch của bạn thành công.</p>
           
           <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-left text-xs space-y-2 max-w-sm mx-auto mb-5">
-            <div class="flex justify-between"><span class="text-emerald-800 font-medium">Mã đơn hàng:</span><span id="succOrderCode" class="font-mono font-bold text-emerald-950"></span></div>
-            <div class="flex justify-between"><span class="text-emerald-800 font-medium">Khách hàng:</span><span id="succCustName" class="font-bold text-emerald-950"></span></div>
-            <div class="flex justify-between"><span class="text-emerald-800 font-medium">Email nhận file:</span><span id="succEmail" class="font-bold text-emerald-950"></span></div>
-            <div class="flex justify-between"><span class="text-emerald-800 font-medium">Số tiền đã trả:</span><span id="succAmount" class="font-bold text-emerald-950"></span></div>
+            <div class="flex justify-between"><span class="text-emerald-800 font-medium">Mã đơn hàng:</span><span id="miniSuccOrderCode" class="font-mono font-bold text-emerald-950"></span></div>
+            <div class="flex justify-between"><span class="text-emerald-800 font-medium">Khách hàng:</span><span id="miniSuccCustName" class="font-bold text-emerald-950"></span></div>
+            <div class="flex justify-between"><span class="text-emerald-800 font-medium">Email nhận file:</span><span id="miniSuccEmail" class="font-bold text-emerald-950"></span></div>
+            <div class="flex justify-between"><span class="text-emerald-800 font-medium">Số tiền đã trả:</span><span id="miniSuccAmount" class="font-bold text-emerald-950"></span></div>
             <div class="flex justify-between"><span class="text-emerald-800 font-medium">Trạng thái:</span><span class="font-bold text-emerald-700 uppercase">Đã xác nhận (success)</span></div>
           </div>
           
@@ -360,7 +360,6 @@
     const BANK_CODE = "MBBank";
     const BANK_HOLDER = "PHAM HOANG TUNG";
     const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw8tJe-h4inUDXiPWgdNQqd7P1MhvMnWFQZ4A_1_1cYzL9NwZennY2IoVcU39KXeVuyXg/exec";
-    const SEPAY_TOKEN = "NYZMQQ1FGWOUCPC3KKMIUZAOYYEWG9IDBFAS2RK702S5VTWURSNKXIADTCJFZNAM";
 
     let currentOrderCode = "";
     let checkInterval = null;
@@ -486,6 +485,17 @@
         const randomNum = Math.floor(1000 + Math.random() * 9000);
         currentOrderCode = "DH" + randomNum;
 
+        // Lưu thông tin đơn vào sessionStorage để dự phòng
+        try {
+          sessionStorage.setItem("currentOrderData", JSON.stringify({
+            order_code: currentOrderCode,
+            name: name,
+            email: email,
+            phone: phone,
+            amount: amount
+          }));
+        } catch(e) {}
+
         // Lưu đơn hàng trực tiếp lên Cloud Database (Google Sheets / Supabase)
         const orderData = {
           order_code: currentOrderCode,
@@ -578,6 +588,29 @@
     function onPaymentSuccess(orderCode, name, email, amount) {
       if (checkInterval) clearInterval(checkInterval);
 
+      // Lấy dữ liệu với nhiều tầng dự phòng (từ tham số, biến toàn cục, hoặc sessionStorage)
+      let savedOrder = {};
+      try {
+        savedOrder = JSON.parse(sessionStorage.getItem("currentOrderData") || "{}");
+      } catch(e) {}
+
+      const finalOrderCode = orderCode || currentOrderCode || savedOrder.order_code || document.getElementById("orderCodeDisplay")?.innerText || "DH" + Math.floor(1000 + Math.random() * 9000);
+      const finalName = name || savedOrder.name || document.getElementById("custName")?.value.trim() || "Quý khách";
+      const finalEmail = email || savedOrder.email || document.getElementById("custEmail")?.value.trim() || "";
+      const finalAmount = amount || savedOrder.amount || parseInt(document.getElementById("productSelect")?.value || 2000);
+      const nowStr = new Date().toLocaleString("vi-VN");
+
+      // Lưu lại biên lai vào sessionStorage
+      try {
+        sessionStorage.setItem("lastOrderReceipt", JSON.stringify({
+          orderCode: finalOrderCode,
+          name: finalName,
+          email: finalEmail,
+          amount: finalAmount,
+          time: nowStr
+        }));
+      } catch (e) {}
+
       // Ẩn toàn bộ khung checkout hai cột cũ
       const checkoutGrid = document.getElementById("checkoutGrid");
       if (checkoutGrid) checkoutGrid.classList.add("hidden");
@@ -586,13 +619,24 @@
       const thankYou = document.getElementById("thankYouSection");
       if (thankYou) thankYou.classList.remove("hidden");
 
-      // Điền thông tin vào các trường hiển thị
-      if (document.getElementById("succOrderCode")) document.getElementById("succOrderCode").innerText = orderCode;
-      if (document.getElementById("succCustName")) document.getElementById("succCustName").innerText = name;
-      if (document.getElementById("succEmail")) document.getElementById("succEmail").innerText = email;
-      if (document.getElementById("succEmailStep")) document.getElementById("succEmailStep").innerText = email;
-      if (document.getElementById("succAmount")) document.getElementById("succAmount").innerText = Number(amount).toLocaleString("vi-VN") + " đ";
-      if (document.getElementById("succTime")) document.getElementById("succTime").innerText = new Date().toLocaleString("vi-VN");
+      // Cập nhật tất cả các trường hiển thị (sử dụng querySelectorAll để đảm bảo mọi phần tử đều được điền)
+      const updateText = (id, text) => {
+        const els = document.querySelectorAll("#" + id);
+        els.forEach(el => { el.innerText = text; });
+      };
+
+      updateText("succOrderCode", finalOrderCode);
+      updateText("succCustName", finalName);
+      updateText("succEmail", finalEmail);
+      updateText("succEmailStep", finalEmail);
+      updateText("succAmount", Number(finalAmount).toLocaleString("vi-VN") + " đ");
+      updateText("succTime", nowStr);
+
+      // Cập nhật cả khung mini trong modal/sidebar nếu có
+      updateText("miniSuccOrderCode", finalOrderCode);
+      updateText("miniSuccCustName", finalName);
+      updateText("miniSuccEmail", finalEmail);
+      updateText("miniSuccAmount", Number(finalAmount).toLocaleString("vi-VN") + " đ");
 
       // Cuộn mượt lên đầu trang
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -610,6 +654,18 @@
         }, 350);
       }
     }
+
+    // Tự động khôi phục màn hình biên lai nếu người dùng refresh hoặc mở từ URL thành công
+    window.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlOrderCode = urlParams.get("order_code");
+      try {
+        const lastReceipt = JSON.parse(sessionStorage.getItem("lastOrderReceipt") || "null");
+        if (lastReceipt && (urlOrderCode === lastReceipt.orderCode || (!urlOrderCode && urlParams.get("status") === "success"))) {
+          onPaymentSuccess(lastReceipt.orderCode, lastReceipt.name, lastReceipt.email, lastReceipt.amount);
+        }
+      } catch (e) {}
+    });
 
     loadProductsDropdown();
     updateAmount();
