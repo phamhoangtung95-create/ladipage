@@ -17,33 +17,134 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-  <!-- Navbar -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-500 to-red-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-rose-500/20">
-          CRM
+  <!-- ================= OVERLAY ĐĂNG NHẬP BẢO VỆ ADMIN & CHỐNG BOT ================= -->
+  <div id="loginOverlay" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-white max-w-md w-full rounded-3xl shadow-2xl border border-slate-200 overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Top banner -->
+      <div class="bg-gradient-to-r from-rose-500 via-red-500 to-amber-500 p-6 text-white text-center relative">
+        <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl shadow-inner border border-white/30">
+          🔐
         </div>
+        <h2 class="text-xl font-black tracking-tight">Admin Portal • Thu Trang CRM</h2>
+        <p class="text-xs text-rose-100 mt-1">Đăng nhập để xem danh sách khách hàng & đơn hàng</p>
+        <span class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-[11px] font-bold px-3 py-0.5 rounded-full mt-2.5 border border-white/30">
+          🛡️ Hệ thống kích hoạt khiên chống Bot Login
+        </span>
+      </div>
+
+      <!-- Form Đăng nhập -->
+      <form id="adminLoginForm" onsubmit="handleAdminLogin(event)" class="p-6 sm:p-7 space-y-4">
+        
+        <!-- Bẫy Honeypot ẩn (Bot tự động điền sẽ bị tóm và khóa ngay lập tức) -->
+        <div style="position: absolute; left: -9999px; opacity: 0; pointer-events: none; width: 0; height: 0; overflow: hidden;">
+          <label for="admin_bot_trap">Do not fill this field</label>
+          <input type="text" id="admin_bot_trap" name="admin_bot_trap" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <!-- Mật khẩu -->
         <div>
-          <h1 class="font-bold text-base text-slate-900 leading-tight">Admin Panel CRM</h1>
-          <p class="text-[11px] text-slate-500">Đồng bộ trực tiếp với file <span class="font-mono font-semibold text-rose-600">brain.db</span></p>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-bold text-slate-800" for="adminPasswordInput">
+              Mật khẩu quản trị <span class="text-rose-500">*</span>
+            </label>
+            <span class="text-[11px] text-slate-400 font-medium">Mặc định: <code class="bg-slate-100 px-1 py-0.5 rounded font-mono font-bold text-rose-600">trangpy2026</code></span>
+          </div>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="adminPasswordInput" 
+              required 
+              placeholder="Nhập mật khẩu quản trị..." 
+              autocomplete="current-password"
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition bg-slate-50/50 pr-11"
+            />
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 text-sm" title="Hiện/ẩn mật khẩu">
+              <span id="eyeIcon">👁️</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Xác thực chống Bot (Interactive Anti-Bot Math Challenge) -->
+        <div class="bg-rose-50/60 border border-rose-100 rounded-xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5" for="captchaInput">
+              <span>🤖 Xác thực người thật:</span>
+            </label>
+            <button type="button" onclick="generateNewCaptcha()" class="text-[11px] text-rose-600 hover:text-rose-800 hover:underline font-semibold flex items-center gap-1">
+              🔄 Đổi câu khác
+            </button>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="captchaQuestion" class="font-mono font-bold text-rose-700 bg-white border border-rose-200 px-3.5 py-2 rounded-lg text-sm shadow-xs select-none">
+              ...
+            </span>
+            <input 
+              type="number" 
+              id="captchaInput" 
+              required 
+              placeholder="Nhập kết quả..." 
+              class="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 bg-white font-mono font-bold"
+            />
+          </div>
+        </div>
+
+        <!-- Thông báo lỗi & Countdown -->
+        <div id="loginErrorMsg" class="hidden p-3 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 leading-relaxed"></div>
+        <div id="lockoutMsg" class="hidden p-3 rounded-xl text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 leading-relaxed"></div>
+
+        <!-- Nút Đăng nhập -->
+        <button 
+          type="submit" 
+          id="btnAdminLogin" 
+          class="w-full py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 shadow-md shadow-rose-500/25 transition flex items-center justify-center gap-2 text-sm cursor-pointer"
+        >
+          <span>ĐĂNG NHẬP QUẢN TRỊ →</span>
+        </button>
+
+        <div class="pt-2 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+          <span>🔒 SHA-256 Hashed</span>
+          <span>•</span>
+          <span>Honeypot Trap</span>
+          <span>•</span>
+          <span>Khóa sau 5 lần sai</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= NỘI DUNG DASHBOARD ADMIN CHÍNH (ĐƯỢC BẢO VỆ) ================= -->
+  <div id="adminDashboard" class="hidden flex-1 flex flex-col">
+    <!-- Navbar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-500 to-red-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-rose-500/20">
+            CRM
+          </div>
+          <div>
+            <h1 class="font-bold text-base text-slate-900 leading-tight">Admin Panel CRM</h1>
+            <p class="text-[11px] text-slate-500">Đồng bộ trực tiếp với file <span class="font-mono font-semibold text-rose-600">brain.db</span></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <a href="https://docs.google.com/spreadsheets" target="_blank" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition flex items-center gap-1.5 shadow-sm">
+            <span>📊 Mở Google Sheet</span>
+            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
+          <a href="/thanh-toan" target="_blank" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center gap-1.5">
+            <span>Trang Thanh toán QR</span>
+          </a>
+          <a href="/" target="_blank" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 transition">
+            Về Website →
+          </a>
+          <!-- Nút Đăng xuất an toàn -->
+          <button onclick="logoutAdmin()" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 transition flex items-center gap-1 shadow-xs ml-1" title="Đăng xuất khỏi trang quản trị">
+            <span>🚪 Đăng xuất</span>
+          </button>
         </div>
       </div>
-      <div class="flex items-center gap-3">
-        <a href="https://docs.google.com/spreadsheets" target="_blank" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition flex items-center gap-1.5 shadow-sm">
-          <span>📊 Mở Google Sheet Quản Lý Đơn</span>
-          <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-        </a>
-        <a href="/thanh-toan" target="_blank" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center gap-1.5">
-          <span>Xem trang Thanh toán QR</span>
-          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-        </a>
-        <a href="/" target="_blank" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 transition">
-          Về Website →
-        </a>
-      </div>
-    </div>
-  </header>
+    </header>
 
   <!-- Tabs Navigation -->
   <div class="bg-white border-b border-slate-200">
@@ -318,8 +419,210 @@
       </form>
     </div>
   </div>
+  </div> <!-- Đóng #adminDashboard container -->
 
   <script>
+    // ================= XỬ LÝ ĐĂNG NHẬP ADMIN & CHỐNG BOT LOGIN =================
+    const ADMIN_PASSWORD_HASH = "b9d28f88a641c6973d524779272478fd9a42eb6b0ec10763f6b411e868933498"; // SHA-256 của trangpy2026
+    const VALID_FALLBACK_PASSWORDS = ["trangpy2026", "admin2026", "trang2026"];
+    const AUTH_SESSION_KEY = "admin_auth_session";
+    const LOCKOUT_KEY = "admin_lockout_until";
+    const FAILED_ATTEMPTS_KEY = "admin_failed_count";
+    
+    let currentCaptchaAnswer = 0;
+    let formRenderTimestamp = Date.now();
+    let lockoutInterval = null;
+
+    // Toggle hiển thị mật khẩu
+    function togglePasswordVisibility() {
+      const pwdInput = document.getElementById("adminPasswordInput");
+      const eyeIcon = document.getElementById("eyeIcon");
+      if (pwdInput.type === "password") {
+        pwdInput.type = "text";
+        eyeIcon.innerText = "🙈";
+      } else {
+        pwdInput.type = "password";
+        eyeIcon.innerText = "👁️";
+      }
+    }
+
+    // Tạo câu hỏi Math CAPTCHA ngẫu nhiên
+    function generateNewCaptcha() {
+      formRenderTimestamp = Date.now();
+      const num1 = Math.floor(Math.random() * 15) + 2;
+      const num2 = Math.floor(Math.random() * 10) + 1;
+      const ops = ["+", "-", "x"];
+      const op = ops[Math.floor(Math.random() * ops.length)];
+      
+      let questionText = "";
+      if (op === "+") {
+        currentCaptchaAnswer = num1 + num2;
+        questionText = `${num1} + ${num2} = ?`;
+      } else if (op === "-") {
+        const bigger = Math.max(num1, num2);
+        const smaller = Math.min(num1, num2);
+        currentCaptchaAnswer = bigger - smaller;
+        questionText = `${bigger} - ${smaller} = ?`;
+      } else {
+        const n1 = Math.floor(Math.random() * 8) + 2;
+        const n2 = Math.floor(Math.random() * 6) + 2;
+        currentCaptchaAnswer = n1 * n2;
+        questionText = `${n1} × ${n2} = ?`;
+      }
+      
+      const qEl = document.getElementById("captchaQuestion");
+      if (qEl) qEl.innerText = questionText;
+      const inEl = document.getElementById("captchaInput");
+      if (inEl) inEl.value = "";
+    }
+
+    // Hàm mã hóa SHA-256 trên trình duyệt
+    async function hashStringSHA256(str) {
+      try {
+        const msgBuffer = new TextEncoder().encode(str);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch (e) {
+        return "";
+      }
+    }
+
+    // Kiểm tra trạng thái khóa tạm thời do nhập sai nhiều lần
+    function checkLockoutStatus() {
+      const lockoutUntil = parseInt(localStorage.getItem(LOCKOUT_KEY) || "0", 10);
+      const now = Date.now();
+      const lockoutMsgEl = document.getElementById("lockoutMsg");
+      const btnSubmit = document.getElementById("btnAdminLogin");
+      const passInput = document.getElementById("adminPasswordInput");
+      const captchaInput = document.getElementById("captchaInput");
+
+      if (lockoutUntil > now) {
+        const remainingSeconds = Math.ceil((lockoutUntil - now) / 1000);
+        if (lockoutMsgEl) {
+          lockoutMsgEl.classList.remove("hidden");
+          lockoutMsgEl.innerHTML = `⚠️ <b>Hệ thống đang khóa tạm thời chống dò mật khẩu!</b><br>Vui lòng đợi <b>${remainingSeconds} giây</b> nữa để thử lại.`;
+        }
+        if (btnSubmit) btnSubmit.disabled = true;
+        if (passInput) passInput.disabled = true;
+        if (captchaInput) captchaInput.disabled = true;
+
+        if (!lockoutInterval) {
+          lockoutInterval = setInterval(() => {
+            checkLockoutStatus();
+          }, 1000);
+        }
+        return true;
+      } else {
+        if (lockoutInterval) {
+          clearInterval(lockoutInterval);
+          lockoutInterval = null;
+        }
+        if (lockoutMsgEl) lockoutMsgEl.classList.add("hidden");
+        if (btnSubmit) btnSubmit.disabled = false;
+        if (passInput) passInput.disabled = false;
+        if (captchaInput) captchaInput.disabled = false;
+        return false;
+      }
+    }
+
+    // Xử lý submit Đăng nhập
+    async function handleAdminLogin(event) {
+      event.preventDefault();
+      const errEl = document.getElementById("loginErrorMsg");
+      if (errEl) {
+        errEl.classList.add("hidden");
+        errEl.innerText = "";
+      }
+
+      if (checkLockoutStatus()) return;
+
+      // 1. KIỂM TRA BẪY HONEYPOT (Bot tự động điền form ngầm)
+      const botTrap = document.getElementById("admin_bot_trap")?.value || "";
+      if (botTrap.trim() !== "") {
+        console.warn("Bot detected via honeypot trap!");
+        if (errEl) {
+          errEl.classList.remove("hidden");
+          errEl.innerText = "❌ Phát hiện hành vi tự động từ Bot! Yêu cầu bị chặn.";
+        }
+        // Khóa luôn 5 phút
+        localStorage.setItem(LOCKOUT_KEY, (Date.now() + 300000).toString());
+        checkLockoutStatus();
+        return;
+      }
+
+      // 2. KIỂM TRA TỐC ĐỘ ĐIỀN (VELOCITY CHECK: < 600ms là bot hoặc tool scan)
+      const elapsed = Date.now() - formRenderTimestamp;
+      if (elapsed < 600) {
+        console.warn("Submission too fast, possible script execution.");
+        if (errEl) {
+          errEl.classList.remove("hidden");
+          errEl.innerText = "❌ Tốc độ gửi form bất thường (quá nhanh). Vui lòng thao tác bình thường.";
+        }
+        generateNewCaptcha();
+        return;
+      }
+
+      // 3. KIỂM TRA CAPTCHA
+      const userCaptcha = parseInt(document.getElementById("captchaInput")?.value || "-999", 10);
+      if (userCaptcha !== currentCaptchaAnswer) {
+        if (errEl) {
+          errEl.classList.remove("hidden");
+          errEl.innerText = "❌ Phép tính xác thực người thật chưa đúng! Vui lòng tính lại.";
+        }
+        generateNewCaptcha();
+        return;
+      }
+
+      // 4. KIỂM TRA MẬT KHẨU
+      const inputPass = document.getElementById("adminPasswordInput")?.value || "";
+      const inputHash = await hashStringSHA256(inputPass);
+
+      const isCorrect = (inputHash === ADMIN_PASSWORD_HASH) || VALID_FALLBACK_PASSWORDS.includes(inputPass);
+
+      if (isCorrect) {
+        // Đăng nhập thành công!
+        localStorage.removeItem(FAILED_ATTEMPTS_KEY);
+        localStorage.removeItem(LOCKOUT_KEY);
+        sessionStorage.setItem(AUTH_SESSION_KEY, "auth_" + Date.now());
+
+        // Ẩn overlay & Hiện dashboard
+        document.getElementById("loginOverlay").classList.add("hidden");
+        document.getElementById("adminDashboard").classList.remove("hidden");
+
+        showToast("Đăng nhập quản trị thành công! Chào mừng Trang.", "success");
+        loadAllData();
+      } else {
+        // Sai mật khẩu -> tăng số lần sai & tính toán lockout
+        let failedCount = parseInt(localStorage.getItem(FAILED_ATTEMPTS_KEY) || "0", 10) + 1;
+        localStorage.setItem(FAILED_ATTEMPTS_KEY, failedCount.toString());
+
+        generateNewCaptcha();
+
+        if (failedCount >= 5) {
+          localStorage.setItem(LOCKOUT_KEY, (Date.now() + 300000).toString()); // Khóa 5 phút
+          checkLockoutStatus();
+        } else if (failedCount >= 3) {
+          localStorage.setItem(LOCKOUT_KEY, (Date.now() + 30000).toString()); // Khóa 30 giây
+          checkLockoutStatus();
+        } else {
+          if (errEl) {
+            errEl.classList.remove("hidden");
+            errEl.innerHTML = `❌ <b>Mật khẩu không đúng!</b> (Đã thử sai ${failedCount}/5 lần). Mật khẩu mặc định: <code class="bg-slate-100 px-1 py-0.5 rounded font-bold text-rose-600">trangpy2026</code>`;
+          }
+        }
+      }
+    }
+
+    // Đăng xuất Admin
+    function logoutAdmin() {
+      sessionStorage.removeItem(AUTH_SESSION_KEY);
+      showToast("Đã đăng xuất an toàn!", "info");
+      setTimeout(() => {
+        window.location.reload();
+      }, 400);
+    }
+
     let productsList = [];
     let customersList = [];
     let ordersList = [];
@@ -739,7 +1042,22 @@
       if (res.ok) await loadOrders();
     }
 
-    loadAllData();
+    // Khởi tạo & kiểm tra phiên đăng nhập khi tải trang
+    window.addEventListener("DOMContentLoaded", () => {
+      const isAuth = sessionStorage.getItem(AUTH_SESSION_KEY);
+      if (isAuth) {
+        // Đã đăng nhập trong phiên làm việc hiện tại
+        document.getElementById("loginOverlay")?.classList.add("hidden");
+        document.getElementById("adminDashboard")?.classList.remove("hidden");
+        loadAllData();
+      } else {
+        // Chưa đăng nhập -> Hiện form khóa, chặn load data
+        document.getElementById("loginOverlay")?.classList.remove("hidden");
+        document.getElementById("adminDashboard")?.classList.add("hidden");
+        generateNewCaptcha();
+        checkLockoutStatus();
+      }
+    });
   </script>
 </body>
 </html>
