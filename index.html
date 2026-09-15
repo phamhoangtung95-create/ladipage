@@ -654,7 +654,7 @@
               <p class="text-xs text-slate-500 mt-1">Trả lời nhanh để Thu Trang may đo giải pháp sát thực tế nhất cho gia đình bạn</p>
             </div>
 
-            <form id="leadForm" class="space-y-5 text-left">
+            <form id="leadForm" novalidate class="space-y-5 text-left">
               
               <!-- Câu 1: Quan tâm nhất -->
               <div>
@@ -1342,15 +1342,29 @@
       if (!input) return true;
       const raw = input.value.trim().replace(/[\s.-]/g, '');
       const phoneRegex = /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/;
+
+      if (!raw) {
+        input.classList.remove("border-slate-200", "border-emerald-500", "bg-emerald-50/20");
+        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        if (err) {
+          err.innerText = "⚠️ Vui lòng nhập số điện thoại để Trang tiện liên hệ.";
+          err.classList.remove("hidden");
+        }
+        return false;
+      }
+
       if (phoneRegex.test(raw)) {
-        input.classList.remove("border-rose-500", "ring-2", "ring-rose-500/20");
-        input.classList.add("border-emerald-500");
+        input.classList.remove("border-slate-200", "border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        input.classList.add("border-emerald-500", "bg-emerald-50/20");
         if (err) err.classList.add("hidden");
         return true;
       } else {
-        input.classList.remove("border-emerald-500");
-        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20");
-        if (err) err.classList.remove("hidden");
+        input.classList.remove("border-slate-200", "border-emerald-500", "bg-emerald-50/20");
+        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        if (err) {
+          err.innerText = "⚠️ Số điện thoại không hợp lệ (cần đúng 10 số, bắt đầu bằng 03, 05, 07, 08, 09).";
+          err.classList.remove("hidden");
+        }
         return false;
       }
     }
@@ -1360,15 +1374,29 @@
       const err = document.getElementById("errLeadName");
       if (!input) return true;
       const val = input.value.trim();
+
+      if (!val) {
+        input.classList.remove("border-slate-200", "border-emerald-500", "bg-emerald-50/20");
+        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        if (err) {
+          err.innerText = "⚠️ Vui lòng nhập họ tên của bạn để Trang tiện xưng hô.";
+          err.classList.remove("hidden");
+        }
+        return false;
+      }
+
       if (val.length >= 2) {
-        input.classList.remove("border-rose-500", "ring-2", "ring-rose-500/20");
-        input.classList.add("border-emerald-500");
+        input.classList.remove("border-slate-200", "border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        input.classList.add("border-emerald-500", "bg-emerald-50/20");
         if (err) err.classList.add("hidden");
         return true;
       } else {
-        input.classList.remove("border-emerald-500");
-        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20");
-        if (err) err.classList.remove("hidden");
+        input.classList.remove("border-slate-200", "border-emerald-500", "bg-emerald-50/20");
+        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        if (err) {
+          err.innerText = "⚠️ Họ tên cần tối thiểu 2 ký tự.";
+          err.classList.remove("hidden");
+        }
         return false;
       }
     }
@@ -1379,15 +1407,29 @@
       if (!input) return true;
       const val = input.value.trim();
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!val) {
+        input.classList.remove("border-slate-200", "border-emerald-500", "bg-emerald-50/20");
+        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        if (err) {
+          err.innerText = "⚠️ Vui lòng nhập địa chỉ email để hệ thống gửi tài liệu.";
+          err.classList.remove("hidden");
+        }
+        return false;
+      }
+
       if (emailRegex.test(val)) {
-        input.classList.remove("border-rose-500", "ring-2", "ring-rose-500/20");
-        input.classList.add("border-emerald-500");
+        input.classList.remove("border-slate-200", "border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        input.classList.add("border-emerald-500", "bg-emerald-50/20");
         if (err) err.classList.add("hidden");
         return true;
       } else {
-        input.classList.remove("border-emerald-500");
-        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20");
-        if (err) err.classList.remove("hidden");
+        input.classList.remove("border-slate-200", "border-emerald-500", "bg-emerald-50/20");
+        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        if (err) {
+          err.innerText = "⚠️ Địa chỉ email không hợp lệ (ví dụ: tenban@gmail.com).";
+          err.classList.remove("hidden");
+        }
         return false;
       }
     }
