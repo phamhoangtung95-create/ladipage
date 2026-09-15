@@ -181,8 +181,9 @@ export default async function handler(req, res) {
   }
 
   const { email, fullName } = req.body || {};
-  if (!email) {
-    return res.status(400).json({ error: 'Vui lòng cung cấp email' });
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(String(email).trim())) {
+    return res.status(400).json({ error: 'Địa chỉ email không đúng định dạng (ví dụ: email@domain.com)' });
   }
 
   const { apiKey, fromEmail } = getResendConfig();

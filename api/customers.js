@@ -19,12 +19,23 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     const body = req.body || {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/;
+    const phoneRaw = String(body.phone || "").replace(/[\s.-]/g, '');
+
+    if (!phoneRegex.test(phoneRaw)) {
+      return res.status(400).json({ error: "Số điện thoại không hợp lệ (cần đúng 10 số)" });
+    }
+    if (!emailRegex.test(String(body.email || "").trim())) {
+      return res.status(400).json({ error: "Địa chỉ email không đúng định dạng" });
+    }
+
     const newCust = {
       id: Date.now(),
       name: body.name || "Khách hàng mới",
-      phone: body.phone || "",
-      email: body.email || "",
-      zalo: body.zalo || body.phone || "",
+      phone: phoneRaw,
+      email: body.email.trim(),
+      zalo: body.zalo || phoneRaw,
       registered_at: new Date().toLocaleString("vi-VN")
     };
     global.__CUSTOMERS__.unshift(newCust);

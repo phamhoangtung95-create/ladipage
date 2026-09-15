@@ -1451,10 +1451,21 @@
       const isEmailOk = validateLeadEmail();
 
       if (!isPhoneOk || !isNameOk || !isEmailOk) {
-        if (!isPhoneOk) document.getElementById("formPhone")?.focus();
-        else if (!isNameOk) document.getElementById("formFullName")?.focus();
-        else if (!isEmailOk) document.getElementById("formEmail")?.focus();
-        return;
+        btnSubmit.disabled = false;
+        btnSubmit.classList.remove("opacity-75");
+        btnSubmit.innerHTML = `<span>GỬI THÔNG TIN CHO THU TRANG →</span>`;
+
+        if (!isPhoneOk) {
+          document.getElementById("formPhone")?.focus();
+          document.getElementById("formPhone")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else if (!isNameOk) {
+          document.getElementById("formFullName")?.focus();
+          document.getElementById("formFullName")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else if (!isEmailOk) {
+          document.getElementById("formEmail")?.focus();
+          document.getElementById("formEmail")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        return false;
       }
 
       const q1 = document.querySelector('input[name="q1_interest"]:checked')?.value || "";
@@ -1474,6 +1485,45 @@
         </svg>
         <span>Đang gửi thông tin...</span>
       `;
+
+      // Tự động gửi Email Sequence qua Resend (kiểm tra trước, nếu email sai chặn ngay)
+      let sequenceNote = "";
+      if (email) {
+        try {
+          const apiEndpoint = (window.location.hostname === 'www.thutrangbaohiem.io.vn')
+            ? '/api/send-sequence'
+            : 'https://www.thutrangbaohiem.io.vn/api/send-sequence';
+
+          const seqRes = await fetch(apiEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, fullName })
+          });
+          const seqData = await seqRes.json();
+
+          if (!seqRes.ok || !seqData.success) {
+            // NẾU GỬI THẤT BẠI VÌ EMAIL SAI HOẶC BỊ TỪ CHỐI: CHẶN LẠI NGAY LẬP TỨC
+            btnSubmit.disabled = false;
+            btnSubmit.classList.remove("opacity-75");
+            btnSubmit.innerHTML = `<span>GỬI THÔNG TIN CHO THU TRANG →</span>`;
+
+            formMessage.className = "p-4 rounded-2xl text-xs font-bold text-center bg-rose-50 text-rose-700 border border-rose-300 block shadow-sm";
+            formMessage.innerHTML = `⚠️ <strong>Không thể gửi:</strong> ${seqData.error || "Địa chỉ email không hợp lệ. Vui lòng nhập đúng email thật của bạn (ví dụ: tenban@gmail.com)."}`;
+            formMessage.scrollIntoView({ behavior: "smooth", block: "center" });
+
+            const emailInput = document.getElementById("formEmail");
+            emailInput?.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+            emailInput?.focus();
+            return false;
+          }
+
+          if (seqData.mode === "test") {
+            sequenceNote = "<br><span class='text-rose-600 font-bold'>⚡ Chế độ Test (+test): Đã gửi toàn bộ 3 email ngay lập tức vào hộp thư " + email + "! (Vui lòng kiểm tra cả mục Hộp thư đến, Quảng cáo và Thư rác/Spam)</span>";
+          }
+        } catch (seqErr) {
+          console.warn("Lỗi gọi sequence:", seqErr);
+        }
+      }
 
       // Tổng hợp 3 câu khảo sát thành chuỗi tóm tắt rõ ràng cho Google Sheet và Email
       const summaryInterest = `${q1} | Dành cho: ${q2} | Ngân sách: ${q3}`;
@@ -1506,34 +1556,6 @@
         console.warn("Lưu CRM cục bộ:", crmErr);
       }
 
-      // Tự động gửi Email Sequence qua Resend (hỗ trợ chế độ test +test)
-      let sequenceNote = "";
-      if (email) {
-        try {
-          // Gọi trực tiếp đến www.thutrangbaohiem.io.vn để không bị lỗi 308 redirect khi ở apex domain hoặc local/surge
-          const apiEndpoint = (window.location.hostname === 'www.thutrangbaohiem.io.vn')
-            ? '/api/send-sequence'
-            : 'https://www.thutrangbaohiem.io.vn/api/send-sequence';
-
-          const seqRes = await fetch(apiEndpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, fullName })
-          });
-          const seqData = await seqRes.json();
-          if (seqData.success) {
-            if (seqData.mode === "test") {
-              sequenceNote = "<br><span class='text-rose-600 font-bold'>⚡ Chế độ Test (+test): Đã gửi toàn bộ 3 email ngay lập tức vào hộp thư " + email + "! (Vui lòng kiểm tra cả mục Hộp thư đến, Quảng cáo và Thư rác/Spam)</span>";
-            }
-          } else {
-            console.warn("Lỗi gửi email sequence:", seqData.error);
-            sequenceNote = "<br><span class='text-amber-600 text-xs font-semibold'>Lưu ý gửi email: " + (seqData.error || "Chưa gửi được") + "</span>";
-          }
-        } catch (seqErr) {
-          console.warn("Lỗi gửi email sequence:", seqErr);
-        }
-      }
-
       if (GOOGLE_SHEET_URL && GOOGLE_SHEET_URL.startsWith("http")) {
         try {
           await fetch(GOOGLE_SHEET_URL, {
@@ -1546,7 +1568,7 @@
         }
       }
 
-      // Thông báo thành công
+      // Thông báo thành công THỰC SỰ
       formMessage.className = "p-4 rounded-2xl text-xs font-bold text-center bg-emerald-50 text-emerald-700 border border-emerald-200 block shadow-sm";
       formMessage.innerHTML = `🎉 Cảm ơn <strong>${fullName}</strong>! Thu Trang đã nhận được thông tin khảo sát và email <strong>${email}</strong> để gửi tài liệu hỗ trợ sớm nhất!${sequenceNote}`;
 

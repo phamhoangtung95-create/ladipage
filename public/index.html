@@ -654,7 +654,7 @@
               <p class="text-xs text-slate-500 mt-1">Trả lời nhanh để Thu Trang may đo giải pháp sát thực tế nhất cho gia đình bạn</p>
             </div>
 
-            <form id="leadForm" class="space-y-5 text-left">
+            <form id="leadForm" novalidate class="space-y-5 text-left">
               
               <!-- Câu 1: Quan tâm nhất -->
               <div>
@@ -732,6 +732,7 @@
               </div>
 
               <!-- Câu 4: Số điện thoại / Zalo -->
+              <!-- Câu 4: Số điện thoại / Zalo -->
               <div>
                 <label class="block text-xs sm:text-sm font-bold text-slate-900 mb-1.5" for="formPhone">
                   4. Mình gọi cho anh/chị số nào ạ? (Zalo) <span class="text-rose-500">*</span>
@@ -747,6 +748,7 @@
                   />
                   <span class="absolute left-3.5 top-3.5 text-slate-400 text-base">📱</span>
                 </div>
+                <p id="errLeadPhone" class="hidden text-xs text-rose-600 font-semibold mt-1">⚠️ Số điện thoại không hợp lệ (cần đúng 10 số, ví dụ 0912345678).</p>
               </div>
 
               <!-- Câu 5: Họ tên để xưng hô -->
@@ -765,6 +767,7 @@
                   />
                   <span class="absolute left-3.5 top-3.5 text-slate-400 text-base">👤</span>
                 </div>
+                <p id="errLeadName" class="hidden text-xs text-rose-600 font-semibold mt-1">⚠️ Vui lòng nhập họ tên của bạn (tối thiểu 2 ký tự).</p>
               </div>
 
               <!-- Câu 6: Email nhận tài liệu & tư vấn tự động -->
@@ -783,6 +786,7 @@
                   />
                   <span class="absolute left-3.5 top-3.5 text-slate-400 text-base">✉️</span>
                 </div>
+                <p id="errLeadEmail" class="hidden text-xs text-rose-600 font-semibold mt-1">⚠️ Địa chỉ email không hợp lệ (ví dụ: tenban@gmail.com).</p>
               </div>
 
               <!-- Thông báo kết quả gửi form -->
@@ -1331,13 +1335,143 @@
     const btnSubmit = document.getElementById("btnSubmitLead");
     const formMessage = document.getElementById("formMessage");
 
+    // === HÀM VALIDATE DỮ LIỆU ĐĂNG KÝ ===
+    function validateLeadPhone() {
+      const input = document.getElementById("formPhone");
+      const err = document.getElementById("errLeadPhone");
+      if (!input) return true;
+      const raw = input.value.trim().replace(/[\s.-]/g, '');
+      const phoneRegex = /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/;
+
+      if (!raw) {
+        input.classList.remove("border-slate-200", "border-emerald-500", "bg-emerald-50/20");
+        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        if (err) {
+          err.innerText = "⚠️ Vui lòng nhập số điện thoại để Trang tiện liên hệ.";
+          err.classList.remove("hidden");
+        }
+        return false;
+      }
+
+      if (phoneRegex.test(raw)) {
+        input.classList.remove("border-slate-200", "border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        input.classList.add("border-emerald-500", "bg-emerald-50/20");
+        if (err) err.classList.add("hidden");
+        return true;
+      } else {
+        input.classList.remove("border-slate-200", "border-emerald-500", "bg-emerald-50/20");
+        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        if (err) {
+          err.innerText = "⚠️ Số điện thoại không hợp lệ (cần đúng 10 số, bắt đầu bằng 03, 05, 07, 08, 09).";
+          err.classList.remove("hidden");
+        }
+        return false;
+      }
+    }
+
+    function validateLeadName() {
+      const input = document.getElementById("formFullName");
+      const err = document.getElementById("errLeadName");
+      if (!input) return true;
+      const val = input.value.trim();
+
+      if (!val) {
+        input.classList.remove("border-slate-200", "border-emerald-500", "bg-emerald-50/20");
+        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        if (err) {
+          err.innerText = "⚠️ Vui lòng nhập họ tên của bạn để Trang tiện xưng hô.";
+          err.classList.remove("hidden");
+        }
+        return false;
+      }
+
+      if (val.length >= 2) {
+        input.classList.remove("border-slate-200", "border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        input.classList.add("border-emerald-500", "bg-emerald-50/20");
+        if (err) err.classList.add("hidden");
+        return true;
+      } else {
+        input.classList.remove("border-slate-200", "border-emerald-500", "bg-emerald-50/20");
+        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        if (err) {
+          err.innerText = "⚠️ Họ tên cần tối thiểu 2 ký tự.";
+          err.classList.remove("hidden");
+        }
+        return false;
+      }
+    }
+
+    function validateLeadEmail() {
+      const input = document.getElementById("formEmail");
+      const err = document.getElementById("errLeadEmail");
+      if (!input) return true;
+      const val = input.value.trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!val) {
+        input.classList.remove("border-slate-200", "border-emerald-500", "bg-emerald-50/20");
+        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        if (err) {
+          err.innerText = "⚠️ Vui lòng nhập địa chỉ email để hệ thống gửi tài liệu.";
+          err.classList.remove("hidden");
+        }
+        return false;
+      }
+
+      if (emailRegex.test(val)) {
+        input.classList.remove("border-slate-200", "border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        input.classList.add("border-emerald-500", "bg-emerald-50/20");
+        if (err) err.classList.add("hidden");
+        return true;
+      } else {
+        input.classList.remove("border-slate-200", "border-emerald-500", "bg-emerald-50/20");
+        input.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+        if (err) {
+          err.innerText = "⚠️ Địa chỉ email không hợp lệ (ví dụ: tenban@gmail.com).";
+          err.classList.remove("hidden");
+        }
+        return false;
+      }
+    }
+
+    // Gắn sự kiện validate thời gian thực
+    document.getElementById("formPhone")?.addEventListener("input", validateLeadPhone);
+    document.getElementById("formPhone")?.addEventListener("blur", validateLeadPhone);
+    document.getElementById("formFullName")?.addEventListener("input", validateLeadName);
+    document.getElementById("formFullName")?.addEventListener("blur", validateLeadName);
+    document.getElementById("formEmail")?.addEventListener("input", validateLeadEmail);
+    document.getElementById("formEmail")?.addEventListener("blur", validateLeadEmail);
+
     leadForm.addEventListener("submit", async function(e) {
       e.preventDefault();
+
+      // Kiểm tra tính hợp lệ của toàn bộ form trước khi gửi
+      const isPhoneOk = validateLeadPhone();
+      const isNameOk = validateLeadName();
+      const isEmailOk = validateLeadEmail();
+
+      if (!isPhoneOk || !isNameOk || !isEmailOk) {
+        btnSubmit.disabled = false;
+        btnSubmit.classList.remove("opacity-75");
+        btnSubmit.innerHTML = `<span>GỬI THÔNG TIN CHO THU TRANG →</span>`;
+
+        if (!isPhoneOk) {
+          document.getElementById("formPhone")?.focus();
+          document.getElementById("formPhone")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else if (!isNameOk) {
+          document.getElementById("formFullName")?.focus();
+          document.getElementById("formFullName")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else if (!isEmailOk) {
+          document.getElementById("formEmail")?.focus();
+          document.getElementById("formEmail")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        return false;
+      }
 
       const q1 = document.querySelector('input[name="q1_interest"]:checked')?.value || "";
       const q2 = document.querySelector('input[name="q2_target"]:checked')?.value || "";
       const q3 = document.querySelector('input[name="q3_budget"]:checked')?.value || "";
-      const phone = document.getElementById("formPhone").value.trim();
+      const phone = document.getElementById("formPhone").value.trim().replace(/[\s.-]/g, '');
       const fullName = document.getElementById("formFullName").value.trim();
       const email = document.getElementById("formEmail") ? document.getElementById("formEmail").value.trim() : "";
 
@@ -1351,6 +1485,45 @@
         </svg>
         <span>Đang gửi thông tin...</span>
       `;
+
+      // Tự động gửi Email Sequence qua Resend (kiểm tra trước, nếu email sai chặn ngay)
+      let sequenceNote = "";
+      if (email) {
+        try {
+          const apiEndpoint = (window.location.hostname === 'www.thutrangbaohiem.io.vn')
+            ? '/api/send-sequence'
+            : 'https://www.thutrangbaohiem.io.vn/api/send-sequence';
+
+          const seqRes = await fetch(apiEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, fullName })
+          });
+          const seqData = await seqRes.json();
+
+          if (!seqRes.ok || !seqData.success) {
+            // NẾU GỬI THẤT BẠI VÌ EMAIL SAI HOẶC BỊ TỪ CHỐI: CHẶN LẠI NGAY LẬP TỨC
+            btnSubmit.disabled = false;
+            btnSubmit.classList.remove("opacity-75");
+            btnSubmit.innerHTML = `<span>GỬI THÔNG TIN CHO THU TRANG →</span>`;
+
+            formMessage.className = "p-4 rounded-2xl text-xs font-bold text-center bg-rose-50 text-rose-700 border border-rose-300 block shadow-sm";
+            formMessage.innerHTML = `⚠️ <strong>Không thể gửi:</strong> ${seqData.error || "Địa chỉ email không hợp lệ. Vui lòng nhập đúng email thật của bạn (ví dụ: tenban@gmail.com)."}`;
+            formMessage.scrollIntoView({ behavior: "smooth", block: "center" });
+
+            const emailInput = document.getElementById("formEmail");
+            emailInput?.classList.add("border-rose-500", "ring-2", "ring-rose-500/20", "bg-rose-50/30");
+            emailInput?.focus();
+            return false;
+          }
+
+          if (seqData.mode === "test") {
+            sequenceNote = "<br><span class='text-rose-600 font-bold'>⚡ Chế độ Test (+test): Đã gửi toàn bộ 3 email ngay lập tức vào hộp thư " + email + "! (Vui lòng kiểm tra cả mục Hộp thư đến, Quảng cáo và Thư rác/Spam)</span>";
+          }
+        } catch (seqErr) {
+          console.warn("Lỗi gọi sequence:", seqErr);
+        }
+      }
 
       // Tổng hợp 3 câu khảo sát thành chuỗi tóm tắt rõ ràng cho Google Sheet và Email
       const summaryInterest = `${q1} | Dành cho: ${q2} | Ngân sách: ${q3}`;
@@ -1383,34 +1556,6 @@
         console.warn("Lưu CRM cục bộ:", crmErr);
       }
 
-      // Tự động gửi Email Sequence qua Resend (hỗ trợ chế độ test +test)
-      let sequenceNote = "";
-      if (email) {
-        try {
-          // Gọi trực tiếp đến www.thutrangbaohiem.io.vn để không bị lỗi 308 redirect khi ở apex domain hoặc local/surge
-          const apiEndpoint = (window.location.hostname === 'www.thutrangbaohiem.io.vn')
-            ? '/api/send-sequence'
-            : 'https://www.thutrangbaohiem.io.vn/api/send-sequence';
-
-          const seqRes = await fetch(apiEndpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, fullName })
-          });
-          const seqData = await seqRes.json();
-          if (seqData.success) {
-            if (seqData.mode === "test") {
-              sequenceNote = "<br><span class='text-rose-600 font-bold'>⚡ Chế độ Test (+test): Đã gửi toàn bộ 3 email ngay lập tức vào hộp thư " + email + "! (Vui lòng kiểm tra cả mục Hộp thư đến, Quảng cáo và Thư rác/Spam)</span>";
-            }
-          } else {
-            console.warn("Lỗi gửi email sequence:", seqData.error);
-            sequenceNote = "<br><span class='text-amber-600 text-xs font-semibold'>Lưu ý gửi email: " + (seqData.error || "Chưa gửi được") + "</span>";
-          }
-        } catch (seqErr) {
-          console.warn("Lỗi gửi email sequence:", seqErr);
-        }
-      }
-
       if (GOOGLE_SHEET_URL && GOOGLE_SHEET_URL.startsWith("http")) {
         try {
           await fetch(GOOGLE_SHEET_URL, {
@@ -1423,7 +1568,7 @@
         }
       }
 
-      // Thông báo thành công
+      // Thông báo thành công THỰC SỰ
       formMessage.className = "p-4 rounded-2xl text-xs font-bold text-center bg-emerald-50 text-emerald-700 border border-emerald-200 block shadow-sm";
       formMessage.innerHTML = `🎉 Cảm ơn <strong>${fullName}</strong>! Thu Trang đã nhận được thông tin khảo sát và email <strong>${email}</strong> để gửi tài liệu hỗ trợ sớm nhất!${sequenceNote}`;
 
